@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+  <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+  <title>分享有奖</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="adress-result">
+    <img src="./img/share-pull/share-adress-result.png" alt="" class="res-icon">
+    <div class="txt">已提交</div>
+    <button class="btn" @click="seeGift">查看我的礼品</button>
+    <!-- <div class="close" @click="">关闭当前页面</div> -->
+  </div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+	  },
+    created() {
+    },
+    methods: {
+         // 获取链接中的参数
+        getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+      },
+      seeGift() {
+        let token = this.getQueryString('token');
+        window.location.href = `/share-codelist.html?token=${token}`
+      }
+		},
+		mounted() {
+    }
+  })
+</script>
+
+</html>

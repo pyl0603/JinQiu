@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+  <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+  <title>今球</title>
+  <style>
+    .withdraw {
+      text-align: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      /* background: #171717; */
+      display: flex;
+      align-items: center;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .withdraw img {
+      width: 39%;
+      margin-bottom: 8%;
+    }
+
+    .withdraw span {
+      display: block;
+      font-size: .9rem;
+      font-weight: bold;
+      margin-top: .4rem;
+    }
+
+    .withdraw a {
+      color: #1B75FA;
+      text-decoration: none;
+    }
+
+    .withdraw em {
+      display: inline-block;
+      width: 2.2rem;
+      height: .9rem;
+      /* line-height: 1rem; */
+      padding: .2rem 0;
+      text-align: center;
+      font-style: normal;
+      font-weight: normal;
+      font-size: .6rem;
+      background: linear-gradient(0deg, rgba(240, 240, 240, 1), rgba(248, 248, 248, 1));
+      border: 1px solid rgba(204, 204, 204, 1);
+      border-radius: 4px;
+      position: relative;
+      top: -.1rem;
+    }
+
+    .tip-modal {
+      display: flex;
+      justify-content: center;
+      z-index: 12;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: .8rem;
+      padding: .2rem 0;
+      width: 4.8rem;
+      padding-right: .7rem;
+      color: #ffffff;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: .2rem;
+      /* text-align: center; */
+    }
+
+    /* .tip-content::after {
+      z-index: 10;
+      content: '';
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.3);
+    } */
+
+    @media (prefers-color-scheme: dark) {
+      .color-scheme {
+        background-color: #111111;
+        color: #ADADAD;
+      }
+
+      .withdraw em {
+        display: inline-block;
+        width: 2.2rem;
+        height: .9rem;
+        /* line-height: 1rem; */
+        padding: .2rem 0;
+        text-align: center;
+        font-style: normal;
+        font-weight: normal;
+        font-size: .6rem;
+        position: relative;
+        top: -.1rem;
+        background: rgba(23, 23, 23, 1);
+        border: 1px solid rgba(204, 204, 204, 1);
+        border-radius: 4px;
+      }
+
+      .tip-modal {
+        color: #ffffff;
+        background-color: rgba(0, 0, 0, 0.2);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="withdraw" id="app" :class="{'color-scheme':iOSFollow}">
+    <div>
+      <img src="../img/img_zj_a.png" alt="">
+      <span>因平台受限，目前绑定支付宝只支持电脑端登录绑定，</span>
+      <span>给您带来的不便敬请谅解。</span>
+      <span>电脑端地址：<a>https://expert.jinqiulive.com</a> <em @click.stop="copy">复制</em></span>
+      <span>或 联系客服(周一至周五 09:30~12:00，13:30~18:00)</span>
+      <span>电话：<a href="tel:0592-5575923">0592-5575923</a></span>
+      <span>QQ群：<a href="qq:722010628">722010628</a></span>
+          <div class="tip-modal"  v-if="isModal">
+             {{message}}
+      </div>
+    </div>
+  </div>
+</body>
+<script src="../js/vue.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      message: '复制成功',
+      isModal: false,
+      iOSFollow: false
+    },
+    created() {
+      if (getQueryString('followSys') == 'TRUE') {
+        this.iOSFollow = true;
+      }
+    },
+    methods: {
+      copy() {
+        let url = 'https://expert.jinqiulive.com';
+        let oInput = document.createElement("input");
+        oInput.value = url;
+        document.body.appendChild(oInput);
+        oInput.select(); // 选择对象;
+        console.log(oInput.value);
+        document.execCommand("Copy"); // 执行浏览器复制命令
+        this.isModal = true;
+        setTimeout(() => {
+          this.isModal = false
+        }, 1500)
+        oInput.remove();
+      },
+    },
+  })
+  function getQueryString(name) {
+    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+    var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+    var r = window.location.search.substr(1).match(reg);
+    var q = window.location.pathname.substr(1).match(reg_rewrite);
+    if (r != null) {
+      return unescape(r[2]);
+    } else if (q != null) {
+      return unescape(q[2]);
+    } else {
+      return null;
+    }
+  }
+</script>
+
+</html>

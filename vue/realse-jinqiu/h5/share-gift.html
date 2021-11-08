@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+	<meta name="referrer" content="never">
+	<meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+	<meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+	<title>所有礼品</title>
+	<link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/vant.css">
+	<style>
+		[v-cloak] {
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="share-app" class="share-pull-app" v-cloak>
+    <div class="share-gift-wrap">
+        <van-tabs color="#FBC31F" v-model="goodsIndex">
+          <van-tab v-for="item in list" :title="item.title" :key="item.id">
+            <div  class="share-gift">
+              <div class="share-gift-level">
+                <!-- 礼品一：邀请成功2人 -->
+                {{item.fullName}}
+              </div>
+              <div class="share-gift-content" v-html="item.display">
+                <!-- <div class="share-gift-title">
+                  球队球星定制手环
+                </div>
+                <div class="share-gift-item">
+                  <img src="./img/share-pull/gift.png" />
+                </div>
+                <div class="share-gift-item">
+                  <img src="./img/share-pull/gift.png" />
+                </div> -->
+              </div>
+            </div>
+          </van-tab>
+        </van-tabs>
+       <div v-if="isShow" class="btn">
+          <van-button color="#FBC31F" block @click="receiveGift">前往领取</van-button>
+       </div>
+    </div>
+	</div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@2.9/lib/vant.min.js"></script>
+<script>
+	document.documentElement.addEventListener('touchstart', function (event) {
+  if (event.touches.length > 1) {
+    event.preventDefault();
+  }
+	}, false);
+	document.documentElement.addEventListener('touchstart', function (event) {
+  if (event.touches.length > 1) {
+    event.preventDefault();
+  }
+	}, false);
+</script>
+<script>
+	var app = new Vue({
+		el: '#share-app',
+		data: {
+      isShow: false,
+      list: [],
+      goodsIndex: 0
+		},
+		methods: {
+			// 获取链接中的参数
+			getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+			},
+      // 获取活动的礼品列表
+      getGiftList(groupId) {
+        let url = groupId ? `http://192.168.1.200:9000/client-app/gift/list?page=1&page_size=100&groupId=${groupId}` : 'http://192.168.1.200:9000/client-app/gift/list?page=1&page_size=100'
+        axios.get(url).then(res => {
+          this.list = res.data.data || []
+          console.log(this.list)
+				});
+      },
+      // 前往领取礼品
+      receiveGift() {
+        const token = this.getQueryString('token');
+        const data = this.list.find((item, index) => index === this.goodsIndex);
+        const goodsId = data.id;
+        const title = data.title;
+        const price = data.price;
+        window.location.href = `/share-address.html?goodsId=${goodsId}&title=${title}&price=${price}&token=${token}`
+      }
+		},
+		created() {},
+		mounted() {
+      const receive = this.getQueryString('receive')
+      const groupId = this.getQueryString('groupId')
+      this.isShow = receive || false
+      this.getGiftList(groupId)
+    }
+	})
+</script>
+
+</html>

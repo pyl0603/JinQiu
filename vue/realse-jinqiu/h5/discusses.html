@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>今球——今天的足球资讯你get了吗？</title>
+    <!-- <link rel="ico" type="image/x-icon" href="static/logo.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="static/logo.ico"> -->
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak class="color-scheme">
+        <div class="discusses">
+            <div class="title">
+                {{data.title}}
+            </div>
+            <div class="dis-user">
+                <img :src="data.avatar" :onerror="defaultImg">
+                <div>
+                    <span>{{data.nickname}}</span>
+                    <em>{{data.createdAt}}</em>
+                </div>
+            </div>
+            <div class="cont-all">
+                <div :class="{contallcont:isMore}" ref="element">
+                    <div class="cont">
+                        {{data.content}}
+                    </div>
+                    <div class="cont-img">
+                        <img :src="item " alt=" " v-for="(item,index) in data.images " :key="index ">
+                    </div>
+                </div>
+                <div class="hiden-half" v-if="isMore">
+                    <div class="see-all-btn" @click="goDownload">查看余下精彩内容</div>
+                </div>
+            </div>
+        </div>
+        <div class="eva " v-if="nicknameReply">
+            <div class="eva-count ">评论 {{totalEva}}</div>
+            <div class="eva-item ">
+                <div class="eva-user ">
+                    <img :src="evaUserAv" :onerror="defaultImg ">
+                    <div class="eva-right">
+                        <div class="eva-main ">
+                            <span>{{nicknameReply}}</span>
+                            <em>{{list.createdAt}}</em>
+                            <i>{{list.content}}</i>
+                        </div>
+                        <div class="eva-reply " v-if="list.children">
+                            <em v-for="(item,index) in list.children" :key="index" v-if="index < 2">{{item.author.nickname}}<i v-if="item.isReply">回复</i>{{item.refer.nickname}}： {{item.content}}</em>
+                            <div v-if="list.children.length>2">共{{list.children.length}}条回复></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tips ">
+            <div class="tips-left ">
+                <img src="./img/logos.png " alt=" ">
+                <div>
+                    <span>今球</span>
+                    <em>今天的足球篮球资讯你get了吗？</em>
+                </div>
+            </div>
+            <div class="tips-right">
+                <em @click="goDownload">立即下载</em>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js "></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js "></script>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js "></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            defaultImg: 'this.src="./img/def_nav_portrait.png "',
+            data: '',
+            list: '',
+            nicknameReply: '',
+            totalEva: 0,
+            evaUserAv:'',
+            isMore: false
+        },
+        methods: {
+            timestampToTime(timestamp) {
+                var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                var Y = date.getFullYear() + '-';
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+                return Y + M + D + h + m + s;
+            },
+            // 查看全部
+            goDownload() {
+                window.location.href = 'https://api.jinqiulive.com/download/app'
+            },
+            // 获取链接中的参数
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                var q = window.location.pathname.substr(1).match(reg_rewrite);
+                if (r != null) {
+                    return unescape(r[2]);
+                } else if (q != null) {
+                    return unescape(q[2]);
+                } else {
+                    return null;
+                }
+            }
+        },
+        mounted() {
+            let id = this.getQueryString('id')
+            axios.get(`https://api.jinqiulive.com/client-app/discuss?id=${id}`).then(res => {
+                this.data = res.data.data;
+                this.data.createdAt = this.timestampToTime(res.data.data.createdAt)
+            }).catch(err => {
+                console.log(err);
+            });
+            axios.get(`https://api.jinqiulive.com/client-app/comments?type=4&target=${id}`).then(res => {
+                this.totalEva = res.data.meta.pagination.total
+                if (res.data.data.length > 0) {
+                    this.list = res.data.data[0];
+                    this.list.createdAt = this.timestampToTime(res.data.data[0].createdAt);
+                    this.nicknameReply = this.list.author.nickname
+                    this.evaUserAv = this.list.author.avatar;
+                }
+            }).catch(err => {
+                console.log(err);
+            })
+        },
+        watch: {
+            data(newVal) {
+                this.$nextTick(_ => {
+                    let _height = window.getComputedStyle(this.$refs.element).height.substring(0, window.getComputedStyle(this.$refs.element).height.length - 2);
+                    if (_height > 336) {
+                        this.isMore = true;
+                    }
+                })
+            }
+        }
+    });
+</script>
+
+</html

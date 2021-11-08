@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>篮球</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/simple.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <div class="match-top">
+            <div class="title">{{data.competition.short_name_zh}}</div>
+            <div class="center">
+                <div class="item home">
+                    <img :src="data.home.logo" alt="">
+                    <span>{{data.home.short_name_zh || data.home.name_zh}}</span>
+                </div>
+                <!-- 状态判断 -->
+                <!-- 只有文字 -->
+                <div class="info txt" v-if="1 < data.status.value &&  data.status.value < 11">
+                    <span>{{data.status.display}}<em>{{data.cup}}</em></span>
+                    <div class="score">
+                        <em>{{data.home.score.score}}</em>
+                        -
+                        <em>{{data.away.score.score}}</em>
+                    </div>
+                </div>
+                <!-- 未开赛&比赛异常 -->
+                <div v-else class="info dateTime">
+                    <span>{{matchTime}}</span>
+                    <em>{{data.status.display}}</em>
+                </div>
+                <!-- 客队 -->
+                <div class="item away">
+                    <img :src="data.away.logo" alt="">
+                    <span>{{data.away.short_name_zh || data.away.name_zh}}</span>
+                </div>
+            </div>
+            <div class="see-btn">
+                <span @click="goDownload">观看比赛</span>
+            </div>
+        </div>
+        <!-- <div class="ball-tab">
+            <span>本场数据</span>
+        </div> -->
+        <!-- 小节得分 -->
+        <div class="score-four" v-if="1 < data.status.value &&  data.status.value < 11">
+            <table>
+                <thead>
+                    <td>球队</td>
+                    <td>Q1</td>
+                    <td>Q2</td>
+                    <td>Q3</td>
+                    <td>Q4</td>
+                    <td v-if="data.home.score.scoreAddTime != 0 && data.away.score.scoreAddTime != 0">OT</td>
+                    <td>总分</td>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><img :src="data.home.logo" alt=""></td>
+                        <td >{{data.home.score.score1}}</td>
+                        <td>{{data.home.score.score2}}</td>
+                        <td>{{data.home.score.score3}}</td>
+                        <td>{{data.home.score.score4}}</td>
+                        <td v-if="data.home.score.scoreAddTime != 0 && data.away.score.scoreAddTime != 0">{{data.home.score.scoreAddTime}}</td>
+                        <td>{{data.home.score.score}}</td>
+                    </tr>
+                    <tr>
+                        <td><img :src="data.away.logo" alt=""></td>
+                        <td>{{data.away.score.score1}}</td>
+                        <td>{{data.away.score.score2}}</td>
+                        <td>{{data.away.score.score3}}</td>
+                        <td>{{data.away.score.score4}}</td>
+                        <td v-if="data.home.score.scoreAddTime != 0 && data.away.score.scoreAddTime != 0">{{data.away.score.scoreAddTime}}</td v-if="data.home.score.scoreAddTime != 0 && data.away.score.scoreAddTime != 0">
+                        <td>{{data.away.score.score}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 本场最佳 -->
+        <div class="match-tops" v-if="topsList.length > 0">
+            <div class="title">本场最佳</div>
+            <div class="bball-team">
+                <div class="item home">
+                    <img :src="data.home.logo" alt="">
+                    <span>{{data.home.short_name_zh || data.home.name_zh}}</span>
+                </div>
+                <div class="item away">
+                    <span>{{data.away.short_name_zh || data.away.name_zh}}</span>
+                    <img :src="data.away.logo" alt="">
+                </div>
+            </div>
+            <div class="tops-list">
+                <div class="tops-item" v-for="(item,index) in topsList" ::key="index">
+                    <div class="tops-cont">
+                        <div class="left-items">
+                            <img :src="item.homePlayer.logo" alt="">
+                            <span>{{item.homePlayer.count}}</span>
+                            <em :style="{height:(item.homePlayer.count > item.awayPlayer.count ? 1.2 : (item.homePlayer.count/item.awayPlayer.count)*1.2) + 'rem'}"></em>
+                        </div>
+                        <div class="right-items">
+                            <em :style="{height:(item.awayPlayer.count > item.homePlayer.count ? 1.2 : (item.awayPlayer.count/item.homePlayer.count)*1.2) + 'rem'}"></em>
+                            <span>{{item.awayPlayer.count}}</span>
+                            <img :src="item.awayPlayer.logo" alt="">
+                        </div class="items">
+                    </div>
+                    <div class="tops-title">
+                        <em>{{item.homePlayer.name}}</em>
+                        {{item.title}}
+                        <em>{{item.awayPlayer.name}}</em>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 分析数据 -->
+        <div class="bball-det"  v-if="list.length > 0">
+            <div class="title">球队统计</div>
+            <div class="bball-team">
+                <div class="item home">
+                    <img :src="data.home.logo" alt="">
+                    <span>{{data.home.short_name_zh || data.home.name_zh}}</span>
+                </div>
+                <div class="item away">
+                    <span>{{data.away.short_name_zh || data.away.name_zh}}</span>
+                    <img :src="data.away.logo" alt="">
+                </div>
+            </div>
+            <div class="bball-list">
+                <!-- 左右 -->
+                <div class="bball-cont" v-for="(item,index) in list" :key="index">
+                    <div class="count-info">
+                        <em>{{item.home}}<em v-if="item.type.display.indexOf('率') > -1">%</em></em>
+                        <em>{{item.type.display}}</em>
+                        <em>{{item.away}}<em v-if="item.type.display.indexOf('率') > -1">%</em></em>
+                    </div>
+                    <div class="bball-item">
+                        <div class="left">
+                            <span class="left-item"
+                                :style="{ width:100*1*item.home/(item.away*1+item.home*1)+'%'}" :class="{on:item.home < item.away}"></span>
+                        </div>
+                        <div class="right">
+                            <span class="right-item"
+                                :style="{ width:100*1*item.away/(item.away*1+item.home*1)+'%'}" :class="{on:item.home > item.away}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 球员统计 -->
+        <div class="bball-count">
+            <div class="title">
+                球队统计
+            </div>
+            <div class="bball-count-item">
+                <!-- 球队信息 -->
+                <div class="item-title">
+                    <span>
+                        <img :src="data.home.logo" alt="">
+                        {{data.home.short_name_zh || data.home.name_zh}}
+                    </span>
+                </div>
+                <!-- 球员信息列表 -->
+                <div class="item-info">
+                    <table>
+                        <thead>
+                                <td>球员</td>
+                                <td>出场时间</td>
+                                <td>得分</td>
+                                <td>篮板</td>
+                                <td>助攻</td>
+                                <td>抢断</td>
+                                <td>盖帽</td>
+                                <td>投篮</td>
+                                <td>三分</td>
+                                <td>罚球</td>
+                                <td>失误</td>
+                                <td>犯规</td>
+                                <td>前板</td>
+                                <td>后板</td>
+                                <td>正负值</td>
+                        </thead>
+                        <tbody>
+                            <tr :class="{on : !item.stats.isAlternate}" v-for="item in homePlayers" :key="item.id">
+                                <td><span>{{item.nameZh}}</span></td>
+                                <td>{{item.stats.keepTime}}'</td>
+                                <td>{{item.stats.score}}</td>
+                                <td>{{item.stats.rebounds}}</td>
+                                <td>{{item.stats.holdingAttacks}}</td>
+                                <td>{{item.stats.steals}}</td>
+                                <td>{{item.stats.blockShots}}</td>
+                                <td>{{item.stats.hits}}/{{item.stats.shots}}</td>
+                                <td>{{item.stats.threePointHits}}/{{item.stats.threePointShots}}</td>
+                                <td>{{item.stats.foulShotHits}}/{{item.stats.foulShots}}</td>
+                                <td>{{item.stats.faults}}</td>
+                                <td>{{item.stats.personalFouls}}</td>
+                                <td>{{item.stats.offensiveRebounds}}</td>
+                                <td>{{item.stats.defendRebounds}}</td>
+                                <td>正负值</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                 <!-- 球队信息 -->
+                 <div class="item-title away-info">
+                    <span>
+                        <img :src="data.away.logo" alt="">
+                        {{data.away.short_name_zh || data.away.name_zh}}
+                    </span>
+                </div>
+                <!-- 球员信息列表 -->
+                <div class="item-info">
+                    <table>
+                        <thead>
+                                <td>球员</td>
+                                <td>出场时间</td>
+                                <td>得分</td>
+                                <td>篮板</td>
+                                <td>助攻</td>
+                                <td>抢断</td>
+                                <td>盖帽</td>
+                                <td>投篮</td>
+                                <td>三分</td>
+                                <td>罚球</td>
+                                <td>失误</td>
+                                <td>犯规</td>
+                                <td>前板</td>
+                                <td>后板</td>
+                                <td>正负值</td>
+                        </thead>
+                        <tbody>
+                            <tr :class="{on : !item.stats.isAlternate}" v-for="item in awayPlayers" :key="item.id">
+                                <td><span>{{item.nameZh}}</span></td>
+                                <td>{{item.stats.keepTime}}'</td>
+                                <td>{{item.stats.score}}</td>
+                                <td>{{item.stats.rebounds}}</td>
+                                <td>{{item.stats.holdingAttacks}}</td>
+                                <td>{{item.stats.steals}}</td>
+                                <td>{{item.stats.blockShots}}</td>
+                                <td>{{item.stats.hits}}/{{item.stats.shots}}</td>
+                                <td>{{item.stats.threePointHits}}/{{item.stats.threePointShots}}</td>
+                                <td>{{item.stats.foulShotHits}}/{{item.stats.foulShots}}</td>
+                                <td>{{item.stats.faults}}</td>
+                                <td>{{item.stats.personalFouls}}</td>
+                                <td>{{item.stats.offensiveRebounds}}</td>
+                                <td>{{item.stats.defendRebounds}}</td>
+                                <td>正负值</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- 未开赛 -->
+        <div class="matchdata-none"  v-if="(2 > data.status.value || data.status.value > 10) && list.length == 0 && topsList.length == 0">
+            <img src="../img/img_saishi_kong.png" alt="">
+            <span>更多赛事资讯，请立即下载今球app</span>
+        </div>
+        <div class="tips ">
+            <div class="tips-left ">
+                <img src="../img/logo.png " alt=" ">
+                <div>
+                    <span>今球</span>
+                    <em>今天的足球篮球资讯你get了吗？</em>
+                </div>
+            </div>
+            <div class="tips-right">
+                <em @click="goDownload">立即下载</em>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js "></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js "></script>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js "></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            defaultImg: 'this.src="./img/def_nav_portrait.png "',
+            data: { competition: { name_zh: '' }, away: { score: {} }, home: { score: {} }, status: {} },
+            list: [],
+            matchTime: '',
+            topsList:[],
+            homePlayers:[],
+            awayPlayers:[]
+
+        },
+        methods: {
+            timestampToTime(timestamp) {
+                var myYear = (new Date()).getFullYear();
+                var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                var Y = date.getFullYear() + '-';
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+                if (myYear == date.getFullYear()) {
+                    return M + D + h + m;
+                } else {
+                    return Y + M + D + h + m;
+                }
+            },
+            // 查看全部
+            goDownload() {
+                window.location.href = 'https://api.jinqiulive.com/download/app'
+            },
+            // 获取链接中的参数
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                var q = window.location.pathname.substr(1).match(reg_rewrite);
+                if (r != null) {
+                    return unescape(r[2]);
+                } else if (q != null) {
+                    return unescape(q[2]);
+                } else {
+                    return null;
+                }
+            }
+        },
+        mounted() {
+            let id = this.getQueryString('id')
+            // id = 3518635;
+            // 比赛信息
+            axios.get(`https://api.jinqiulive.com/client-app/basketball/matches/detail?id=${id}`).then(res => {
+                this.data = res.data.data;
+                this.matchTime = this.timestampToTime(this.data.matchTime);
+            }).catch(err => {
+                console.log(err);
+            });
+            // 比赛数据
+            axios.get(`https://api.jinqiulive.com/client-app/basketball/matches/data?id=${id}`).then(res => {
+                this.list = res.data.data.stats;
+                this.homePlayers = res.data.data.homePlayers;
+                this.awayPlayers = res.data.data.awayPlayers;
+                this.topsList = res.data.data.tops;
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    });
+</script>
+
+</html>

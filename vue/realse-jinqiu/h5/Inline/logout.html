@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>今球</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/lnline.css">
+    <link rel="stylesheet" href="../css/common.css">
+</head>
+
+<body>
+    <div id="app" :class="{'color-scheme':iOSFollow}">
+        <div class="logout">
+            <p>注销账号是不可恢复的操作，请您谨慎操作并且确保您的账号处于安全状态。注销成功后，您将无法登录或使用今球账号内的信息，包括但不限于:</p>
+            <p class="regulations">1.无法使用本账号登录、授权登录或跳转到第三方及使用服务</p>
+            <p>包括但不限于今球APP。</p>
+            <p class="regulations">2.无法查看账号信息，及账号内的搜索记录</p>
+            <p>包括今球个人中心发布记录，收藏，反馈，添加的任何内容。而且前述信息及资料将被清空且无法恢复。</p>
+            <p class="regulations">3.基于本账号所获得的全部虚拟权益均视为您自行放弃且无法恢复使用。</p>
+            <p class="regulations">注意:注销您的今球账号并不代表该账号注销前的所有账号行为和相关责任得到豁免或减轻。</p>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js "></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            isDark: false,
+            iOSFollow: false
+        },
+        methods: {
+            // 获取链接中的参数
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                var q = window.location.pathname.substr(1).match(reg_rewrite);
+                if (r != null) {
+                    return unescape(r[2]);
+                } else if (q != null) {
+                    return unescape(q[2]);
+                } else {
+                    return null;
+                }
+            }
+        },
+        mounted() {
+            if(this.getQueryString('followSys') == 'TRUE'){
+                this.iOSFollow = true;
+            }else{
+                document.body.style.backgroundColor = '#ffffff';
+                document.body.style.color = '#171717';
+            }
+            if (this.getQueryString('colorScheme') == 'dark') {
+                document.body.style.backgroundColor = '#111111';
+                document.body.style.color = '#adadad';
+            }
+        }
+    })
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+            return unescape(r[2]);
+        } else if (q != null) {
+            return unescape(q[2]);
+        } else {
+            return null;
+        }
+    }
+</script>
+
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>今球</title>
+		<link rel="stylesheet" href="./css/base.css">
+		<link rel="stylesheet" href="./css/common.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+		<div id="app" class="solution color-scheme" v-cloak>
+			<div class="solution-top">
+				<div class="title">
+					<h1>{{data.title}}</h1>
+				</div>
+				<div class="date">
+					<span>{{data.timeFormat}}</span>
+				</div>
+			</div>
+			<div  class="solution-content">
+				<div class="content-topic">
+					<img class="spic" :src="avatar" />
+					<div class="info">
+						<h2>{{nickName}}</h2>
+						<div class="identity">
+							<span>{{profession}}</span>
+						</div>
+						<div class="total">
+							<div class="speciality">擅长联赛：
+								<span class="tag" v-for="(item,index) in matchRate">{{item.competitionName}}</span>
+							</div>
+							<div class="rate">
+								<span class="title">近期命中率</span>
+								<span class="mark">{{win}}%</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="content-game">
+					<div class="game-title">
+						<span>{{data.competitionName}}</span>
+						<span>{{data.matchTime | timestampToTime}}</span>
+					</div>
+					<div class="game-team">
+						<div class="team-info">
+							<img :src="data.homeLogo" />
+							<span>{{data.homeTeamName}}</span>
+							<i>{{data.homeRanking}}</i>
+						</div>
+						<span class="team-status">{{isPlanPrice && statusValue === 1  || isBuy && statusValue === 1 ? countdown:statusValue === 8?data.homeScore+'   VS   '+data.awayScore:status}}</span>
+						<div class="team-info">
+							<img :src="data.awayLogo" />
+							<span>{{data.awayTeamName}}</span>
+							<i>{{data.awayRanking}}</i>
+						</div>
+					</div>
+					<div class="see-btn">
+						<span @click="goDownload">观看比赛</span>
+					</div>
+				</div>
+				<div class="play">
+					<div class="play-one" v-if="playType === 2 || playType === 4" :class="{'win-result': resultValue === 2,'lose-result':resultValue === 3}">
+						<div :class="{'active':  homeOrAwayWinValue === 1,'change-result-left': homeOrAwayWinValue === 1, 'other-result-left': homeOrAwayWinValue === 2}">
+							<span>主胜</span>
+							<span>{{data.homePoint}}</span>
+						</div>
+						<div class="middle">
+							<span>让{{playType === 2 ?'球':'分'}}</span>
+							<span>主 {{data.handicap}}</span>
+						</div>
+						<div :class="{'active':  homeOrAwayWinValue === 2,'change-result-right': homeOrAwayWinValue === 2, 'other-result-right': homeOrAwayWinValue === 1}">
+							<span>客胜</span>
+							<span>{{data.awayPoint}}</span>
+						</div>
+					</div>
+					<div class="play-two" v-if="playType === 1 || playType === 3"  :class="{'win-result': resultValue === 2,'lose-result':resultValue === 3}">
+						<div :class="{'active': bigOrSmallBallValue === 1 , 'change-result-left': bigOrSmallBallValue === 1, 'other-result-left': bigOrSmallBallValue === 2}">大{{playType === 1 ?'球':'分'}}(大{{data.homePoint}})</div>
+						<div :class="{'active': bigOrSmallBallValue === 2 ,'change-result-right': bigOrSmallBallValue === 2, 'other-result-right': bigOrSmallBallValue === 1}">小{{playType === 1 ?'球':'分'}}(小{{data.awayPoint}})</div>
+					</div>
+				</div>
+				<div class="reason">
+					<h3>推荐理由</h3>
+					<div class="not-permission" v-if="!isPlanPrice && !isBuy && !data.isDisplay">
+						<div><img src="./img/ic_zj_lock.png" alt=" "></div>
+						<div>
+							<p>购买后可查看本篇方案</p>
+							<span>距售卖截止时间：{{resultValue === 0?countdown:'00:00:00'}}</span>
+						</div>
+					</div>
+					<div class="article" v-if="data.isDisplay" :class="{'abnormal': resultValue === 1,'hit': resultValue === 2,'missed': resultValue === 3,'walking': resultValue === 4}">
+						{{data.content}}
+					</div>
+				</div>
+				<div class="warn">
+					今球平台仅为信息发布平台，并不对第三方发布的信息的真实性 和准确性负责，且不提供彩票售卖业务，请您注意投资风险。
+				</div>
+			</div>
+			<div class="tips">
+				<div class="tips-left ">
+						<img src="./img/logos.png " alt=" ">
+						<div>
+								<span>今球</span>
+								<em>一个不一样的球迷聚集圣地</em>
+						</div>
+				</div>
+				<div class="tips-right">
+						<em @click="goDownload">立即下载</em>
+				</div>
+			</div>
+		</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js "></script>
+<script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+			data: {}, // 得到数据
+			avatar: '', // 专家头像
+			nickName: '', // 专家昵称
+			profession: '', // 专家身份
+			win: 0, // 专家胜率
+			status: '', // 比赛状态
+			statusValue: 0, // 比赛状态
+			matchRate: [], // 专家擅长联赛
+			isPlanPrice: true, // 是否免费
+			isBuy: false, // 是否购买
+			countdown: '00:00:00', // 倒计时
+			playType: 1, // 玩法
+			resultValue:0, // 玩法结果
+			homeOrAwayWinValue: 0, // 客胜主胜
+			bigOrSmallBallValue: 0 // 大小
+		},
+		methods: {
+			// 下载
+			goDownload() {
+        window.location.href = 'https://api.jinqiulive.com/download/app'
+			},
+			// 倒计时
+			showTime(timestamp) {
+				let nowTime = new Date();
+				let leftTime = timestamp - nowTime.getTime();
+				let lefth = Math.floor(leftTime / (1000*60*60)%24) < 9 ?`0${Math.floor(leftTime / (1000*60*60)%24)}`: Math.floor(leftTime / (1000*60*60)%24);  //计算小时数
+        let leftm = Math.floor(leftTime / (1000*60)%60) < 10 ? `0${Math.floor(leftTime / (1000*60)%60)}`: Math.floor(leftTime / (1000*60)%60);  //计算分钟数
+        let lefts = Math.floor(leftTime / 1000%60) < 10 ? `0${Math.floor(leftTime / 1000%60)}`:Math.floor(leftTime / 1000%60);  //计算秒数
+				return `${lefth}:${leftm}:${lefts}`;
+			},
+			// 获取链接中的参数
+			getQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+				var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+				var r = window.location.search.substr(1).match(reg);
+				var q = window.location.pathname.substr(1).match(reg_rewrite);
+				if (r != null) {
+					return unescape(r[2]);
+				} else if (q != null) {
+					return unescape(q[2]);
+				} else {
+					return null;
+				}
+			},
+		},
+		filters: {
+			// 时间
+			timestampToTime(timestamp) {
+                var myYear = (new Date()).getFullYear();
+                var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                var Y = date.getFullYear() + '-';
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+                if (myYear == date.getFullYear()) {
+                    return M + D + h + m;
+                } else {
+                    return Y + M + D + h + m;
+                }
+      }
+		},
+		created(){
+	    setInterval(() => {
+	      debugger
+	    },0)
+  	},
+		mounted() {
+			//let id= 648  https://api.jinqiulive.com/client-app
+			let id = this.getQueryString('id')
+			axios.get(`https://api.jinqiulive.com/client-app/plan?id=${id}`).then(res => {
+          this.data = res.data.data;
+					this.avatar = this.data.publisher.avatar
+					this.nickName = this.data.publisher.nickName
+					this.profession = this.data.publisher.professionType.display
+					this.status = this.data.status.display
+					this.statusValue = this.data.status.value
+					this.win = this.data.publisher.recentRate.reduce((num1, num2) => { return num1 > num2 ? num1 : num2 })
+					this.matchRate = this.data.publisher.matchRate
+					this.isPlanPrice = this.data.planPrice.value === 0 ? true: false
+					this.playType = this.data.playType.value
+					this.isBuy = this.data.isBuy
+					this.homeOrAwayWinValue = this.data.homeOrAwayWin ? this.data.homeOrAwayWin.value:0
+					this.bigOrSmallBallValue = this.data.bigOrSmallBall ? this.data.bigOrSmallBall.value:0
+					this.timer = setInterval(() => {this.countdown = this.showTime(this.data.matchTime)}, 
+					1000);
+					this.resultValue = this.data.matchResult.value
+        }).catch(err => {
+          console.log(err);
+			});
+		},
+    beforeDestroy() {
+      clearInterval(this.timer);
+    }
+	})
+</script>
+<script>
+	document.addEventListener('gesturestart', function(event) {
+    event.preventDefault();
+  });
+</script>
+</html>

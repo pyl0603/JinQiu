@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1894.3">
+  <style type="text/css">
+    html {
+      font-size: 13.33vw;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      color: #171717;
+      background-color: #ffffff;
+      margin: 0;
+    }
+
+    #app {
+      padding: 0 4% 1rem 4%;
+      text-align: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    img{
+      width: 3.34rem;
+      margin-top: 1rem;
+    }
+    i{
+      display: block;
+      margin-top: .5rem;
+      text-align: center;
+      font-size: .38rem;
+      font-style: normal;
+    }
+    em{
+      display: block;
+      margin-top: .3rem;
+      color: #ADADAD;
+      font-size: .26rem;
+      font-style: normal;
+    }
+
+    span{
+      display: block;
+      background: #FBC31F;
+      height: .8rem;
+      line-height: .8rem;
+      border-radius: .08rem;
+      font-size: .3rem;
+      margin-top: .65rem;
+      color: #171717;
+    }
+
+    @media (min-width: 576px) {
+
+      html,
+      body {
+        font-size: 100px;
+      }
+    }
+
+    @media (prefers-color-scheme: light) {
+      .color-scheme {
+        background-color: #111111;
+        color: #adadad;
+      }
+      em{
+        color: #777777;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" :class="{'color-scheme':iOSFollow}">
+    <!-- 审核中 -->
+    <div v-if="check == 1">
+      <img src="./img/img_zj_dd.png" alt="">
+      <i>等待审核结果</i>
+    </div>
+    <!-- 审核驳回 -->
+    <div v-if="check == 3">
+      <img src="./img/img_zj_wei.png" alt="">
+      <i>审核未通过</i>
+      <em>请前往“个人中心-消息”查看未通过原因</em>
+      <span @click.native="sumbit">重新提交认证</span>
+    </div>
+    <!-- 审核通过 -->
+    <div v-if="check == 2">
+      <img src="./img/img_zj_pass.png" alt="">
+      <i>审核通过</i>
+    </div>
+    <!-- 提交异常 -->
+    <div v-if="check == -1">
+      <img src="./img/img_zj_error.png" alt="">
+      <i>审核提交失败</i>
+      <span @click.native="againSumbit">重新提交审核</span>
+    </div>
+  </div>
+</body>
+
+<script src="./js/vue.js "></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      isDark: false,
+      iOSFollow: false,
+      check: 1
+    },
+    methods: {
+      // 获取链接中的参数
+      getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+      },
+      // 提交失败重新提交
+      againSumbit ()  {
+        let id = this.getQueryString('id')
+				let mobile = this.getQueryString('mobile')
+        const followSys = this.getQueryString('followSys');
+        const colorScheme = this.getQueryString('colorScheme')
+        window.location.href = `/expert.html?mobile=${mobile}&id=${id}&colorScheme=${colorScheme}&followSys=${followSys}&again=1`
+      },
+      // 未通过重新提交
+      sumbit() {
+        let id = this.getQueryString('id')
+				let mobile = this.getQueryString('mobile')
+        const followSys = this.getQueryString('followSys');
+        const colorScheme = this.getQueryString('colorScheme')
+        window.location.href = `/expert.html?mobile=${mobile}&id=${id}&colorScheme=${colorScheme}&followSys=${followSys}&again=2`
+      }
+    },
+    mounted() {
+      this.version = this.getQueryString('version');
+      this.check = this.getQueryString('check')
+      this.isDark = this.getQueryString('colorScheme') == 'dark';
+      if (this.isDark) {
+        document.body.style.backgroundColor = '#111111';
+        document.body.style.color = '#adadad';
+        //document.em.style.color = '#777777'
+      }
+      if (this.getQueryString('followSys') == 'TRUE') {
+        this.iOSFollow = true;
+      }
+    }
+  });
+</script>
+
+</html>

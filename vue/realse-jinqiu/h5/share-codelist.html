@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+  <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+  <title>我的礼品</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="share-codelist" v-cloak>
+		<div class="share-code">
+      <div class="share-title">
+				<span class="code-name">礼品</span>
+				<span class="code-createTime">领取时间</span>
+				<span class="code-expiredTime">状态</span>
+			</div>
+      <div class="list">
+        <div class="item" v-for="item in list" :key="item.id" @click="seeOrde(item)">
+          <span class="code-name">
+            <em>{{item.vo.title}}</em>
+            <em v-if="item.remark" class="code-remark">备注：{{item.remark}}</em></span>
+					<span class="code-createTime">{{item.createdAt | timestampToTime}}</span>
+					<span class="code-expiredTime code-copy" :class="{'code-done': item.status.value === 201}">{{item.status.display}}</span>
+					<!-- <span v-if="item.expired" class="code-expiredTime code-expired">已过期</span> -->
+					<!-- <span class="code-copy" @click="copy(item.code)"></span> -->
+        </div>
+        <div class="no-result" v-if="list.length === 0">
+          <span>暂无数据</span>
+        </div>
+			</div>
+			<!--message提示-->
+			<div class="tip-modal"  v-if="isModal">
+				{{message}}
+			</div>
+    </div>
+  </div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      list: [],
+			isModal: false,
+			message: '复制成功'
+    },
+    methods: {
+      // 获取链接中的参数
+      getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+      },
+			// 复制
+			copy(data) {
+				let url = data;
+				let oInput = document.createElement("input");
+				oInput.value = url;
+				document.body.appendChild(oInput);
+				oInput.select(); // 选择对象;
+				console.log(oInput.value);
+				document.execCommand("Copy"); // 执行浏览器复制命令
+				this.isModal = true;
+				setTimeout(() => {
+          this.isModal = false
+        }, 500)
+				oInput.remove();
+			},
+			// 剩余时间
+			remainderTime(expiredTime) {
+				let createTime = new Date().getTime();
+				let time = expiredTime - createTime;
+				let D = Math.floor(time/(24*3600*1000));
+				//计算出小时数
+        let leave = time%(24*3600*1000);    //计算天数后剩余的毫秒数
+        let h = Math.floor(leave/(3600*1000));
+				return `${D}天${h}小时`
+			},
+      // 查看订单
+      seeOrde(item) {
+        let token = this.getQueryString('token')
+        let orderId = item.id
+        window.location.href = `/share-status.html?orderId=${orderId}&token=${token}`
+      }
+    },
+		filters: {
+			// 时间
+			timestampToTime(timestamp) {
+				var myYear = (new Date()).getFullYear();
+				var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+				var Y = date.getFullYear() + '-';
+				var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+				var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+				var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+				var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())+ ':';
+				var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+				return Y + M + D + h + m + s;
+			}
+		},
+    mounted() {
+      let token = this.getQueryString('token')
+      // 得到用户邀请成功统计
+      axios.get(`http://192.168.1.200:9000/client-app/delivery/list?page=1&page_size=100`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then(res => {
+        this.list = res.data.data || []
+      }).catch(err => {
+        console.log(err)
+      });
+    }
+  });
+</script>
+
+</html>

@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+	<meta name="referrer" content="never">
+	<meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+	<meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+	<title>专家认证</title>
+	<link rel="stylesheet" href="https://m.jinqiulive.com/css/base.css">
+	<!-- <link rel="stylesheet" href="https://m.jinqiulive.com/css/common.css"> -->
+	<style>
+		[v-cloak] {
+			display: none;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			.expert .upload-image img {
+				border-radius: .08rem;
+				border: 1px solid #333333 !important;
+			}
+
+			.expert .expert-top {
+				background: url('../img/dark/img_zj_bg.png') no-repeat center;
+				background-size: 100% 100%;
+			}
+
+			.expert .basic-msg {
+				color: #adadad !important;
+				border-bottom: 1px solid #333333 !important;
+			}
+
+			.expert .game-content-title {
+				color: #adadad !important;
+			}
+
+			.expert .expert-input {
+				background-color: #333333;
+				border: 1px solid #212121;
+				color: #adadad;
+			}
+
+			.expert .limit {
+				background-color: #333333 !important;
+				border-color: #212121 !important;
+				color: #adadad;
+			}
+
+			.expert .basic-content::after {
+				background-color: #333333;
+			}
+
+			.expert .footer-tips {
+				background-color: #333333;
+			}
+
+			.expert .expert-profession-modal {
+				background-color: #424242;
+				color: #777777;
+			}
+
+			.expert .profession-content-item {
+				border-bottom: 1px solid #333333;
+			}
+
+			.expert .profession-content-item-active {
+				color: #adadad;
+			}
+
+			.expert .tip-modal {
+				color: #adadad;
+				background-color: #424242;
+			}
+		}
+
+		/** 专家认证 **/
+		.expert-app {
+			padding-bottom: 0 !important;
+		}
+
+		/* .expert {
+	position: relative;
+} */
+
+		.expert-top {
+			height: 1.6rem;
+			background: url('../img/img_zj_bg.png')no-repeat center;
+			background-size: 100% 100%;
+		}
+
+		.expert-footer {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.expert-content .basic-msg {
+			padding: .26rem .3rem;
+			color: #171717;
+			font-size: .3rem;
+			font-weight: 500;
+			border-bottom: 1px solid #EEEEEE;
+		}
+
+		.basic-content,
+		.game-content {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			font-size: .3rem;
+		}
+
+		.basic-content {
+			justify-content: center;
+			align-items: center;
+		}
+
+		.game-content {
+			padding: .36rem 0;
+		}
+
+		.game-content .expert-input {
+			margin-bottom: .3rem;
+		}
+
+		.game-content-title {
+			padding: 0 .3rem;
+			color: #171717;
+			font-weight: 400;
+		}
+
+		.basic-content::after {
+			position: absolute;
+			content: "";
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: .2rem;
+			background-color: #F5F5F5;
+		}
+
+		.expert-input {
+			margin: .3rem;
+			margin-bottom: 0;
+			padding: .2rem;
+			background: #f9f9f9;
+			border: 1px solid #cecece;
+			border-radius: .08rem;
+			font-size: .3rem;
+			width: calc(100% - 1rem);
+		}
+
+		.expert-button {
+			margin: 0 .3rem;
+			padding: .3rem;
+			background-color: #FBC31F;
+			border-radius: .08rem;
+			font-size: .3rem;
+			border: 0;
+			width: 100%;
+		}
+
+		.expert-tips {
+			margin: .4rem .32rem;
+			margin-top: 0;
+			font-size: .24rem;
+			color: #ADADAD;
+			line-height: .42rem;
+		}
+
+		.expert .link {
+			color: #518EFB;
+		}
+
+		.footer-tips {
+			font-size: .24rem;
+			color: #ADADAD;
+			background-color: #F5F5F5;
+			padding: .4rem .32rem;
+			margin-top: .3rem;
+		}
+
+		.expert .job {
+			background: url("../img/ic_zj_down.png") no-repeat scroll right .2rem center transparent;
+			background-size: .22rem .12rem;
+		}
+
+		.expert-profession-modal {
+			z-index: 10;
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: calc(100% - 0.4rem);
+			padding: 0 .2rem;
+			background-color: #fff;
+			font-size: .3rem;
+			color: #424242;
+		}
+
+		.expert-profession::after {
+			z-index: 5;
+			content: '';
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			top: 0;
+			left: 0;
+			background: rgba(0, 0, 0, 0.3);
+		}
+
+		.expert-profession .button-group {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: .26rem 0;
+			color: #171717;
+		}
+
+		.profession-content-item {
+			border-bottom: 1px solid #F0F0F0;
+			padding: .3rem 0;
+			text-align: center;
+			font-size: .28rem;
+		}
+
+		.expert-profession-content:last-child .profession-content-item {
+			border-bottom: 0
+		}
+
+		.profession-content-item-active {
+			color: #171717;
+			font-size: .32rem;
+		}
+
+		.expert input::-webkit-input-placeholder,
+		.expert textarea::-webkit-input-placeholder {
+			color: #ADADAD !important;
+			font-weight: 400;
+		}
+
+		.expert input:-moz-placeholder,
+		.expert textarea:-moz-placeholder {
+			color: #ADADAD !important;
+			font-weight: 400;
+		}
+
+		.expert input::-moz-placeholder,
+		.expert textarea::-moz-placeholder {
+			color: #ADADAD !important;
+			font-weight: 400;
+		}
+
+		.expert input:-ms-input-placeholder,
+		.expert textarea:-ms-input-placeholder {
+			color: #ADADAD !important;
+			font-weight: 400;
+		}
+
+		.upload-image {
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-direction: column;
+			width: 5.4rem;
+			height: 3.6rem;
+			margin-top: .5rem;
+			margin-bottom: .28rem;
+			overflow: hidden;
+		}
+
+		.upload-image #file {
+			z-index: 3;
+			opacity: 0;
+			width: 100%;
+			height: 100%;
+		}
+
+		.upload-image-tips {
+			margin-bottom: .64rem;
+			color: #777777;
+			font-size: .28rem;
+		}
+
+		.upload-image img {
+			z-index: 2;
+			position: absolute;
+			top: 0;
+			left: 0;
+			background-size: cover;
+			background-position: center;
+			width: 5.36rem;
+			height: 3.4rem;
+			border-radius: .08rem;
+			border: 1px solid #F5F5F5;
+		}
+
+		.expert .expert-textarea {
+			display: block;
+			margin-bottom: 0;
+			border-bottom: 0;
+			padding-bottom: 0;
+			resize: none;
+			outline: 0;
+			border-bottom-left-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+
+		.expert .limit {
+			color: #adadad;
+			font-size: .24rem;
+			text-align: right;
+			width: calc(100% - .8rem);
+			margin: .3rem;
+			margin-top: 0;
+			padding-right: .2rem;
+			padding-bottom: .1rem;
+			background: #f9f9f9;
+			border: 1px solid #cecece;
+			border-top: 0;
+			border-radius: .08rem;
+			border-top-left-radius: 0;
+			border-top-right-radius: 0;
+		}
+
+		.expert .tip-modal {
+			z-index: 12;
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			font-size: .3rem;
+			padding: .12rem .3rem;
+			color: #171717;
+			background-color: #fff;
+			border-radius: .08rem;
+		}
+
+		.expert .tip-content::after {
+			z-index: 10;
+			content: '';
+			width: 100%;
+			height: 100%;
+			position: fixed;
+			top: 0;
+			left: 0;
+			background: rgba(0, 0, 0, 0.3);
+		}
+
+		.expert.dark {
+			background-color: #111111;
+			color: #adadad;
+		}
+
+		.expert.dark .expert-top {
+			background: url('../img/dark/img_zj_bg.png') no-repeat center;
+			background-size: 100% 100%;
+		}
+
+		.expert.dark .basic-msg {
+			color: #adadad;
+			border-bottom: 1px solid #333333;
+		}
+
+		.expert.dark .expert-input {
+			background-color: #333333;
+			border-color: #212121;
+			color: #adadad;
+		}
+
+		.expert.dark .limit {
+			background-color: #333333;
+			border-color: #212121;
+		}
+
+		.expert.dark .job {
+			background: url("../img/dark/ic_zj_down.png") no-repeat scroll right .2rem center transparent;
+			background-size: .22rem .12rem;
+		}
+
+		.expert.dark .basic-content::after {
+			background-color: #333333;
+		}
+
+		.expert.dark .footer-tips {
+			background-color: #333333;
+		}
+
+		.expert.dark .expert-profession-modal {
+			background-color: #424242;
+			color: #777777;
+		}
+
+		.expert.dark .profession-content-item {
+			border-color: #333333;
+		}
+
+		.expert.dark .profession-content-item-active {
+			color: #adadad;
+		}
+
+		.expert.dark .upload-image img {
+			border: 1px solid #333333;
+		}
+
+
+		.expert.dark .game-content-title {
+			color: #adadad;
+		}
+
+		.expert.dark .tip-modal {
+			color: #adadad;
+			background-color: #424242;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="app" class="expert-app" :class="{'color-scheme':iOSFollow}" v-cloak>
+		<div v-if="isShow" class="expert" :class="{dark:isDark}">
+			<div class="expert-top"></div>
+			<div class="expert-content">
+				<h2 class="basic-msg">基本信息</h2>
+				<div class="basic-content">
+					<input class="expert-input" type="text" v-model="realName" placeholder="真实姓名（必填）" />
+					<input class="expert-input" type="text" v-model="idNumber" placeholder="身份证号（必填）" />
+					<input class="expert-input job" type="text" v-model="professionName" placeholder="职业类别" readonly
+						@click="selectType" />
+					<div v-if="professionType === 1 || professionType === 2 || professionType === 3" class="upload-image">
+						<input type="file" id="file" ref="jobImgRef" @click="upRely" @change="upImg('jobImg')" />
+						<img :src='jobImg' />
+						<!-- <div class="jobimg" :style="{'backgroundImage':'url('+jobImg+')' }"></div> -->
+					</div>
+					<p v-if="professionType === 1 || professionType === 2 || professionType === 3" class="upload-image-tips">
+						职业证书正面照片（照片清晰无遮挡）</p>
+					<div class="upload-image">
+						<input type="file" id="file" ref="idfontImgRef" @click="upRely" @change="upImg('idfontImg')" />
+						<img :src='idfontImg' />
+						<!-- <div class="idfontimg" :style="{'backgroundImage':'url('+idfontImg+')' }"></div> -->
+					</div>
+					<p class="upload-image-tips">身份证人像照片（照片清晰无遮挡））</p>
+					<div class="upload-image">
+						<input type="file" id="file" ref="idbackImgRef" @click="upRely" @change="upImg('idbackImg')" />
+						<img :src='idbackImg' />
+						<!-- <div class="idbackimg" :style="{'backgroundImage':'url('+idbackImg+')' }"></div> -->
+					</div>
+					<p class="upload-image-tips">身份证国徽照片（照片清晰无遮挡）</p>
+					<div class="upload-image">
+						<input type="file" id="file" ref="idhandImgRef" @click="upRely" @change="upImg('idhandImg')" />
+						<img :src='idhandImg' />
+						<!-- <div class="idhandimg" :style="{'backgroundImage':'url('+idhandImg+')' }"></div> -->
+					</div>
+					<p class="upload-image-tips">手持身份证人像照片（照片清晰无遮挡）</p>
+					<div class="expert-tips">*根据中华人民共和国相关法律法规，专家认证服务需要您提供真 实身份信息（真实姓名、身份证号码、电话号码）以完成实名验 证。详见<a class="link"
+							@click="userText">《用户协议》</a>和<a class="link" @click="privacyText">《隐私政策》</a></div>
+				</div>
+				<h2 class="basic-msg">专家资质</h2>
+				<div class="game-content">
+					<span class="game-content-title">近期比赛</span>
+					<input class="expert-input" type="text" v-model="recentMatch" placeholder="请填写最近分析的一场比赛名称（必填）" />
+					<span class="game-content-title">推荐理由</span>
+					<div>
+						<textarea rows="10" cols="5" class="expert-input expert-textarea" type="text" v-model="reason"
+							placeholder="条理清晰，不少于100字（必填）"></textarea>
+						<div class="limit">{{reason.length}}&nbsp;&nbsp;字</div>
+					</div>
+					<span class="game-content-title">示例</span>
+					<textarea rows="10" cols="5" class="expert-input" type="text" disabled>索利戈尔斯克矿工VS斯拉维亚莫兹里主队
+索利戈尔斯克矿工是白俄超的传统强队，但是这 支球队不喜欢大比分战胜对手，新赛季状态一般仅排 名第7，但主场能力强。客队斯拉维亚莫兹里上赛季杀回超级联赛，现排名联 赛第9，近期状态不稳，而且客场防守差，本赛季4个 客场场均丢2球。各机构指数看好主队让1.25，感觉1球胜概率大，1.25 可以尝试。
+					</textarea>
+				</div>
+			</div>
+			<div class="expert-footer">
+				<button class="expert-button" @click="handleSumbit">提交审核</button>
+			</div>
+			<div class="footer-tips">
+				<span>备注</span>
+				<p>*审核通过后，工作人员将在3个工作日内联系您</p>
+				<p>*本活动最终解释权归今球所有</p>
+			</div>
+			<div class="expert-profession" v-if="isShowTypeMod">
+				<div class="expert-profession-modal">
+					<!-- <div class="button-group">
+						<a>取消</a>
+						<a>确定</a>
+					</div> -->
+					<div class="expert-profession-content" v-for="item,index in typeArr" @click.stop="changeType(item)">
+						<div
+							:class="{'profession-content-item': true, 'profession-content-item-active': professionName === item.display}">
+							{{item.display}}</div>
+					</div>
+				</div>
+			</div>
+			<div v-if="isModal" class="tip-content">
+				<div class="tip-modal">
+					{{message}}
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+			realName: '',
+			idNumber: '',
+			recentMatch: '',
+			reason: '',
+			professionName: '',
+			professionType: '',
+			isShowTypeMod: false,
+			typeArr: [],
+			jobImg: '../img/job.png',
+			idfontImg: '../img/idfont.png',
+			idbackImg: '../img/idback.png',
+			idhandImg: '../img/idhand.png',
+			jobImgUp: false,
+			idfontImgUp: false,
+			idbackImgUp: false,
+			idhandImgUp: false,
+			status: null,
+			isDark: false,
+			iOSFollow: false,
+			isShow: false,
+			isModal: false,
+			message: ''
+		},
+		methods: {
+			// 显示专家职业弹出窗
+			selectType() {
+				this.isShowTypeMod = true
+			},
+			// 选择专家职业
+			changeType(val) {
+				this.professionName = val.display
+				this.professionType = val.value
+				this.isShowTypeMod = false
+			},
+			// 重复上传
+			upRely() {
+				event.target.value = null
+			},
+			// 获取链接中的参数
+			getQueryString(name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+				var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+				var r = window.location.search.substr(1).match(reg);
+				var q = window.location.pathname.substr(1).match(reg_rewrite);
+				if (r != null) {
+					return unescape(r[2]);
+				} else if (q != null) {
+					return unescape(q[2]);
+				} else {
+					return null;
+				}
+			},
+			// 选择上传图片
+			async upImg(type) {
+				console.log(type)
+				const file = this.$refs[`${type}Ref`].files[0];
+				console.log(file)
+				// 获取token
+				let data = await this.getToken();
+				const request = new FormData();
+				let name = `${data.startsWith}${new Date().getTime()}_${Math.random().toString(36).substr(2)}_${file.name}`
+				request.append("OSSAccessKeyId", data.OSSAccessKeyId); // Bucket 拥有者的Access Key Id。
+				request.append("policy", data.policy); // policy规定了请求的表单域的合法性
+				request.append("signature", data.signature); // 根据Access Key Secret和policy计算的签名信息，OSS验证该签名信息从而验证该Post请求的合法性
+				request.append("key", name);
+				request.append("expire", data.expire);
+				request.append('callback', data.callbackBody)
+				request.append("success_action_status", "200"); // 让服务端返回200,不然，默认会返回204
+				request.append("file", file);
+				this.postOss(data.host, request).then(res => {
+					// 上传成功之后的回调
+					if (res.code === 0) {
+						let url = `${data.host}\/${name}?x-oss-process=image/auto-orient,1`
+						this[type] = url
+						this[`${type}Up`] = true
+					}
+				})
+			},
+			//获得token
+			async getToken() {
+				return new Promise((rec, rej) => {
+					axios.defaults.baseURL = ''
+					axios.get('https://dev.jinqiulive.com/front-tools/oss/token?type=video').then(res => {
+						return rec(res.data)
+					}).catch(_ => {
+						console.log('接口异常')
+					})
+				})
+			},
+			// oss直连
+			async postOss(url, data) {
+				return new Promise((rec, rej) => {
+					axios.post(url, data).then(res => {
+						return rec(res.data)
+					}).catch(_ => {
+						console.log('接口异常')
+					})
+				})
+			},
+			// 提交审核
+			handleSumbit() {
+				let id = this.getQueryString('id')
+				let mobile = this.getQueryString('mobile')
+				const followSys = this.getQueryString('followSys');
+				const colorScheme = this.getQueryString('colorScheme')
+				if (this.realName == '') {
+					this.isModal = true
+					this.message = '请填写真实姓名'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				if (this.idNumber == '') {
+					this.isModal = true
+					this.message = '请填写身份证号'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				console.log(1, this.professionType, this.jobImgUp)
+				if (this.professionType === '') {
+					this.isModal = true
+					this.message = '请选择职业类别'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				if (this.professionType !== 0 && !this.jobImgUp) {
+					this.isModal = true
+					this.message = '请上传职业证书证明照片'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				if (!this.idfontImgUp) {
+					this.isModal = true
+					this.message = '请上传身份证正面照片'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				if (!this.idbackImgUp) {
+					this.isModal = true
+					this.message = '请上传身份证反面照片'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				if (!this.idhandImgUp) {
+					this.isModal = true
+					this.message = '请上传手持身份证照片'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				if (this.recentMatch == '') {
+					this.isModal = true
+					this.message = '请填写近期比赛'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				if (this.reason == '' || this.reason.length < 100) {
+					this.isModal = true
+					this.message = '请填写推荐理由并不少于100字'
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					return
+				}
+				const params = {
+					realName: this.realName,
+					idNumber: this.idNumber,
+					recentMatch: this.recentMatch,
+					reason: this.reason,
+					professionType: this.professionType,
+					idCardFront: this.idfontImg,
+					idCardBack: this.idbackImg,
+					idCardHand: this.idhandImg,
+					userId: id,
+					mobile: mobile
+				}
+				if (this.professionType !== '' && this.professionType !== 0) {
+					Object.assign({
+						professionImage: this.jobImg
+					})
+				}
+				axios.post('https://api.jinqiulive.com/client-expert/login/expert/apply', params).then(res => {
+					window.localStorage.clear()
+					window.location.href = `/expert-res.html?colorScheme=${colorScheme}&followSys=${followSys}&check=1`
+					this.isModal = true
+					this.message = res.data.data.message
+					setTimeout(() => {
+						this.isModal = false
+						this.message = ''
+					}, 1000)
+					this.isModal = true
+					this.message = res.data.data.message
+
+				}).catch(_ => {
+					console.log('接口异常')
+					window.localStorage.setItem('realName', this.realName)
+					window.localStorage.setItem('idNumber', this.idNumber)
+					window.localStorage.setItem('recentMatch', this.recentMatch)
+					window.localStorage.setItem('reason', this.reason)
+					window.localStorage.setItem('professionType', this.professionType)
+					window.localStorage.setItem('idfontImg', this.idfontImg)
+					window.localStorage.setItem('idbackImg', this.idbackImg)
+					window.localStorage.setItem('idhandImg', this.idhandImg)
+					window.localStorage.setItem('jobImg', this.jobImg)
+					this.status = -1;
+					window.location.href = `/expert-res.html?mobile=${mobile}&id=${id}&colorScheme=${colorScheme}&followSys=${followSys}&check=${this.status}`
+				})
+			},
+			// 用户协议
+			userText() {
+				const followSys = this.getQueryString('followSys');
+				const colorScheme = this.getQueryString('colorScheme')
+				window.location.href = `/Inline/agreement?colorScheme=${colorScheme}&followSys=${followSys}`
+			},
+			// 隐私协议
+			privacyText() {
+				const followSys = this.getQueryString('followSys');
+				const colorScheme = this.getQueryString('colorScheme')
+				window.location.href = `/Inline/privacy?colorScheme=${colorScheme}&followSys=${followSys}`
+			}
+		},
+		watch: {
+			// 实时监听数据变化
+			isModal(val) {
+			}
+		},
+		created() {
+			let mobile = this.getQueryString('mobile')
+			const again = this.getQueryString('again');
+			let userId = this.getQueryString('id');
+			const followSys = this.getQueryString('followSys');
+			const colorScheme = this.getQueryString('colorScheme');
+			if (again === '2') {
+				this.isShow = true
+			} else {
+				axios.get(`https://api.jinqiulive.com/client-expert/login/${userId}/latest/check-status`).then(res => {
+					if (res.data) {
+						this.isShow = false
+						this.status = res.data.data.value
+						window.location.href = `/expert-res.html?mobile=${mobile}&id=${userId}&colorScheme=${colorScheme}&followSys=${followSys}&check=${this.status}`
+					} else {
+						this.isShow = true
+					}
+				}).catch(err => {
+					this.isShow = true
+					console.log(err);
+				});
+			}
+		},
+		mounted() {
+			const again = this.getQueryString('again');
+			let userId = this.getQueryString('id')
+			if (again === '1') {
+				this.realName = window.localStorage.getItem('realName');
+				this.idNumber = window.localStorage.getItem('idNumber');
+				this.recentMatch = window.localStorage.getItem('recentMatch');
+				this.reason = window.localStorage.getItem('reason');
+				this.professionType = window.localStorage.getItem('professionType');
+				this.idfontImg = window.localStorage.getItem('idfontImg');
+				this.idbackImg = window.localStorage.getItem('idbackImg');
+				this.idhandImg = window.localStorage.getItem('idhandImg');
+				this.jobImg = window.localStorage.getItem('jobImg ');
+			}
+			const followSys = this.getQueryString('followSys');
+			const colorScheme = this.getQueryString('colorScheme')
+			this.isDark = this.getQueryString('colorScheme') == 'dark';
+			if (this.isDark) {
+				document.body.style.backgroundColor = '#111111';
+			}
+			if (this.getQueryString('followSys') == 'TRUE') {
+				this.iOSFollow = true;
+			}
+			axios.get('https://api.jinqiulive.com/client-expert/login/expert/professionType').then(res => {
+				this.typeArr = res.data.data;
+			}).catch(err => {
+				console.log(err);
+			});
+		}
+	})
+</script>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <title></title>
+  <style>
+    .tip-modal {
+      z-index: 12;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: .3rem;
+      padding: .12rem .3rem;
+      color: #171717;
+      background-color: #fff;
+      border-radius: .08rem;
+    }
+
+    .tip-content::after {
+      z-index: 10;
+      content: '';
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      background: rgba(0, 0, 0, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="withdraw" id="app">
+      <div v-if="isTips" class="tip-content">
+          <div class="tip-modal">
+             {{message}}
+           </div>
+      </div>
+  </div>
+</body>
+<script src="../js/vue.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+        message:'复制成功',
+        isTips: true
+    },
+  })
+</script>
+
+</html>

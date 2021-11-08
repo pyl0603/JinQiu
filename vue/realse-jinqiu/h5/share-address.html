@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+  <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+  <title>填写收货信息</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/common.css">
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@2.9/lib/index.css"/> -->
+  <link rel="stylesheet" href="./css/vant.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="share-adress" v-cloak>
+		<div class="adress-shop">
+			<div class="shop-icon">
+				<img src="./img/share-pull/level-1.png" alt="图片" />
+			</div>
+			<div class="shop-desc">
+				<div class="desc-top">
+					{{title}}
+				</div>
+				<div class="desc-bottom">
+					<div class="desc-num">x{{price}}</div>
+				</div>
+			</div>
+		</div>
+		<van-form @submit="onSubmit">
+			<div class="adress-content">
+				<div class="item">
+					<van-field name="receiver" v-model="receiver" label="姓名" placeholder="请填写" input-align="right"/>
+				</div>
+				<div class="item">
+					<van-field name="contact" v-model="contact" label="手机" placeholder="请填写" input-align="right"  />
+				</div>
+				<div class="item">
+					<van-field name="addressValue" v-model="addressValue" label="地址" is-link readonly input-align="right" @click="showAddress" />
+				</div>
+				<div class="item">
+					<van-field
+					v-model="message"
+					name="message"
+					rows="3"
+					autosize
+					type="textarea"
+					placeholder="街道门牌信息"
+				/>
+				</div>
+			</div>
+			<div class="adress-remarks">
+				<van-field name="remark" v-model="remark" label="备注" placeholder="请填写" input-align="right" />
+			</div>
+			<div class="adress-bottom">
+				<van-button color="#FBC31F" block native-type="submit">提交信息</van-button>
+			</div>
+		</van-form>
+		<div v-if="isShow" class="adress-area">
+			<van-area title="选址地区" :area-list="areaList" @cancel="isShow=false" @confirm="confirmAddress" />
+		</div>
+  </div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script src="./js/area.js"></script>
+<script src="./js/vant.min.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/vant@2.9/lib/vant.min.js"></script> -->
+<script>
+  var app = new Vue({
+    el: '#app',
+		data: {
+			receiver: '',
+			contact: '',
+			addressValue: '',
+			message: '',
+			remark: '',
+			isShow: false,
+			areaList,
+			areaString: '',
+			title: '',
+			price: '',
+			goodsId: 0,
+			token: ''
+		},
+    created() {
+    },
+    methods: {
+			// 获取链接中的参数
+			getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return decodeURI(r[2]);
+        } else if (q != null) {
+          return decodeURI(r[2]);
+        } else {
+          return null;
+        }
+			},
+			// 地址弹窗
+			showAddress() {
+				this.areaString = ''
+				this.isShow = true
+			},
+			// 确认地址
+			confirmAddress(item) {
+				console.log('确认地址',item)
+				item.forEach((element, index) => {
+					this.areaString += element.name
+				});
+				this.isShow = false
+				this.addressValue = this.areaString
+			},
+			// 确认提交
+			onSubmit(values) {
+				for(let item in values) {
+					if (values[item] == '' && item !== 'remark') {
+						vant.Toast('信息未填写完整');
+						return;
+					}
+				}
+				Object.assign(values, {address: values.addressValue+values.message})
+				this.sumbitGift(values)
+    	},
+			// 提交礼品订单
+			sumbitGift(data) {
+				axios.post(`http://192.168.1.200:9000/client-app/delivery/post?goodsId=${this.goodsId}`, data, {
+					headers: {
+						Authorization: `Bearer ${this.token}`,
+					},
+					}).then(res => {
+						const data = res.data
+						const code = data.code
+						vant.Toast(data.message);
+						if (code === 0) {
+							window.location.href = `/share-address-result.html?token=${this.token}`
+						}
+					});
+			},
+    },
+		mounted() {
+      this.token = this.getQueryString('token')
+			this.goodsId = this.getQueryString('goodsId')
+			this.title = this.getQueryString('title')
+			this.price = this.getQueryString('price')
+    }
+  })
+</script>
+
+</html>

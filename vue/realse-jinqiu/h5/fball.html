@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>足球</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak class="color-scheme">
+        <div class="match-top fball">
+            <div class="title">{{data.matchevent.name_zh}}</div>
+            <div class="center">
+                <div class="item home">
+                    <img :src="data.home.teamEntity.logo" alt="">
+                    <span>{{data.home.teamEntity.name_zh}}</span>
+                    <i>{{data.homeRanking}}</i>
+                </div>
+                <!-- 状态判断 -->
+                <!-- 只有文字 -->
+                <div class="info txt" v-if="1 < data.customStatus < 8">
+                    <span>{{data.customStatusDesc}}</span>
+                    <div class="score">
+                        <em>{{data.home.score}}</em>
+                        -
+                        <em>{{data.guest.score}}</em>
+                    </div>
+                </div>
+                <!-- 未开赛&比赛异常 -->
+                <div v-else class="info dateTime">
+                    <span>{{matchTime}}</span>
+                    <em>{{data.customStatusDesc}}</em>
+                </div>
+                <!-- 客队 -->
+                <div class="item away">
+                    <img :src="data.guest.teamEntity.logo" alt="">
+                    <span>{{data.guest.teamEntity.name_zh}}</span>
+                    <i>{{data.awayRanking}}</i>
+                </div>
+            </div>
+            <div class="see-btn">
+                <span @click="goDownload">观看比赛</span>
+            </div>
+        </div>
+        <div class="ball-tab" v-if="list.length > 0">
+            <span>本场数据</span>
+        </div>
+        <!-- 分析数据 -->
+        <div class="bball-det" v-if="list.length > 0">
+            <!-- <div class="title">球队统计</div> -->
+            <div class="bball-team">
+                <div class="item home">
+                    <img :src="data.home.teamEntity.logo" alt="">
+                    <span>{{data.home.teamEntity.name_zh}}</span>
+                </div>
+                <div class="item away">
+                    <span>{{data.guest.teamEntity.name_zh}}</span>
+                    <img :src="data.guest.teamEntity.logo" alt="">
+                </div>
+            </div>
+            <div class="bball-list fball">
+                <!-- 左右 -->
+                <div class="bball-cont" v-for="(item,index) in list" :key="index">
+                    <div class="count-info">
+                        <em>{{item.home}}<em v-if="item.type_name.indexOf('率') > -1">%</em></em>
+                        <em>{{item.type_name}}</em>
+                        <em>{{item.away}}<em v-if="item.type_name.indexOf('率') > -1">%</em></em>
+                    </div>
+                    <div class="bball-item">
+                        <div class="left">
+                            <span class="left-item" :style="{ width:100*1*item.home/(item.away*1+item.home*1)+'%' }"
+                                :class="{on:item.home < item.away}"></span>
+                        </div>
+                        <div class="right">
+                            <span class="right-item" :style="{ width:100*1*item.away/(item.away*1+item.home*1)+'%' }"
+                                :class="{on:item.home > item.away}"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 未开赛 -->
+        <div class="matchdata-none" v-if="list.length == 0">
+            <img src="./img/img_saishi_kong.png" alt="">
+            <span>更多赛事资讯，请立即下载今球app</span>
+        </div>
+        <div class="tips ">
+            <div class="tips-left ">
+                <img src="./img/logos.png " alt=" ">
+                <div>
+                    <span>今球</span>
+                    <em>今天的足球篮球资讯你get了吗？</em>
+                </div>
+            </div>
+            <div class="tips-right">
+                <em @click="goDownload">立即下载</em>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js "></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js "></script>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js "></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            defaultImg: 'this.src="./img/def_nav_portrait.png "',
+            data: { matchevent: { name_zh: '' }, guest: { teamEntity: {} }, home: { teamEntity: {} }, status: {} },
+            list: '',
+            matchTime: ''
+
+        },
+        methods: {
+            timestampToTime(timestamp) {
+                var myYear = (new Date()).getFullYear();
+                var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                var Y = date.getFullYear() + '-';
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+                if (myYear == date.getFullYear()) {
+                    return M + D + h + m;
+                } else {
+                    return Y + M + D + h + m;
+                }
+            },
+            // 查看全部
+            goDownload() {
+                window.location.href = 'https://api.jinqiulive.com/download/app'
+            },
+            // 获取链接中的参数
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                var q = window.location.pathname.substr(1).match(reg_rewrite);
+                if (r != null) {
+                    return unescape(r[2]);
+                } else if (q != null) {
+                    return unescape(q[2]);
+                } else {
+                    return null;
+                }
+            }
+        },
+        created() {
+            setInterval(() => {
+                debugger
+            }, 0)
+        },
+        mounted() {
+            let id = this.getQueryString('id')
+            // id = 2679943;
+            axios.get(`https://api.jinqiulive.com/client-app/nami-match/match/detail?id=${id}`).then(res => {
+                this.data = res.data.data;
+                this.matchTime = this.timestampToTime(this.data.matchTime)
+            }).catch(err => {
+                console.log(err);
+            });
+            axios.get(`https://api.jinqiulive.com/client-app/nami-match/match/info?id=${id}`).then(res => {
+                this.list = res.data.data.stats;
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    });
+</script>
+
+</html>

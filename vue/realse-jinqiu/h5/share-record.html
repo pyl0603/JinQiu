@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+  <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+  <title>我的分享</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="share-record">
+    <div class="share-cont">
+      <div class="items title"><span>昵称</span><span>注册时间</span></div>
+      <div class="list">
+        <div class="items" v-for="item in list" :key="item.id">
+          <span><em>{{item.nickname}}</em></span>
+          <span>{{timestampToTime(item.createdAt)}}</span>
+        </div>
+        <div class="no-result" v-if="list.length === 0">
+          <img src="./img/share-pull/ic_me_follow_sebg.png" alt="">
+          <span>暂无数据</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    data: {
+      list: [],
+    },
+    methods: {
+      // 格式化时间
+      timestampToTime(timestamp) {
+                var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                var Y = date.getFullYear() + '-';
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+                return Y + M + D + h + m + s;
+            },
+      // 获取链接中的参数
+      getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+      }
+    },
+    mounted() {
+      let token = this.getQueryString('token')
+      // 得到用户邀请成功统计
+      axios.get('http://192.168.1.200:9000/client-app/users/invitation-users', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }).then(res => {
+        this.list = res.data.data
+      }).catch(err => {
+        console.log(err)
+      });
+    }
+  });
+</script>
+
+</html>

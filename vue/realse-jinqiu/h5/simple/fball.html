@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>足球</title>
+    <link rel="stylesheet" href="../css/base.css">
+    <link rel="stylesheet" href="../css/simple.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <div class="match-top fball">
+            <div class="title">{{data.matchevent.name_zh}}</div>
+            <div class="center">
+                <div class="item home">
+                    <img :src="data.home.teamEntity.logo" alt="">
+                    <span>{{data.home.teamEntity.name_zh}}</span>
+                </div>
+                <!-- 状态判断 -->
+                <!-- 只有文字 -->
+                <div class="info txt" v-if="1 < data.customStatus < 8">
+                    <span>{{data.customStatusDesc}}</span>
+                    <div class="score">
+                        <em>{{data.home.score}}</em>
+                        -
+                        <em>{{data.guest.score}}</em>
+                    </div>
+                </div>
+                <!-- 未开赛&比赛异常 -->
+                <div v-else class="info dateTime">
+                    <span>{{matchTime}}</span>
+                    <em>{{data.customStatusDesc}}</em>
+                </div>
+                <!-- 客队 -->
+                <div class="item away">
+                    <img :src="data.guest.teamEntity.logo" alt="">
+                    <span>{{data.guest.teamEntity.name_zh}}</span>
+                </div>
+            </div>
+            <div class="see-btn">
+                <span v-if="liveSta == 1||liveSta == 4" @click="goDownload">预约</span>
+                <span v-if="liveSta == 2||liveSta == 3 "@click="goDownload">{{liveSta == 2 ? '观看直播' : '回放'}}</span>
+            </div>
+        </div>
+        <div class="lineup-bg" v-if="homeLists.length > 0">
+            <!-- 首发阵容 -->
+            <div class="lineup-title">
+              首发阵容
+            </div>
+            <div class="live-lineup" :class="{on:homeLists == 6||awayLists == 6}" v-if="homeLists.length > 0">
+              <!-- 第一队阵容 -->
+              <div class="first-lineup">
+                <div class="first-lineup-msg">
+                  <div class="lineup-name">
+                    <img :src="matchDet.home.teamEntity.logo">
+                    <em>{{matchDet.home.teamEntity.name_zh}}</em>
+                    <span>{{dataDet.home_formation}}</span>
+                  </div>
+                  <em>主教练：{{managerDet.homeManager.name_zh}}</em>
+                </div>
+                <div class="first-lineup-item first-lineup-first">
+                  <div class="lineup-member lineup-g">
+                    <img :src="homeGItem.logo" :onerror="defaultImg">
+                    <span><em>{{homeGItem.shirt_number}}</em>.{{homeGItem.name}}</span>
+                  </div>
+                </div>
+                <div class="first-lineup-list">
+                  <div
+                    class="first-lineup-item first-lineup-second"
+                    v-for="(item,index) in homeLists"
+                    :key="index"
+                  >
+                    <div class="lineup-member" v-for="(items,index) in item" :key="index">
+                      <img :src="items.logo" :onerror="defaultImg">
+                      <span><em>{{items.shirt_number}}</em>.{{items.name}}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- 第二队阵容 -->
+              <div class="second-lineup">
+                <div class="second-lineup-list">
+                  <div
+                    class="second-lineup-item second-lineup-first"
+                    v-for="(item,index) in awayLists"
+                    :key="index"
+                  >
+                    <div class="lineup-member" v-for="(items,index) in item" :key="index">
+                      <img :src="items.logo" :onerror="defaultImg">
+                      <span><em>{{items.shirt_number}}</em>.{{items.name}}</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="second-lineup-item second-lineup-fourth">
+                  <div class="lineup-member lineup-g">
+                    <img :src="awayGItem.logo" :onerror="defaultImg">
+                    <span> <em>{{awayGItem.shirt_number}}</em>.{{awayGItem.name}}</span>
+                  </div>
+                </div>
+                <div class="second-lineup-msg">
+                  <div class="lineup-name">
+                    <img :src="matchDet.guest.teamEntity.logo">
+                    <em>{{matchDet.guest.teamEntity.name_zh}}</em>
+                    <span>{{dataDet.away_formation}}</span>
+                  </div>
+                  <em>主教练：{{managerDet.awayManager.name_zh}}</em>
+                </div>
+              </div>
+            </div>
+        </div>
+        <div class="substitute" v-if="spliceList.length>0">
+          <div class="lineup-title">替补球员</div>
+          <!-- 替补 -->
+          <div class="substitute-content">   
+            <table>
+              <thead>
+                <td>
+                  <img :src="matchDet.home.teamEntity.logo">
+                  <em>{{matchDet.home.teamEntity.name_zh}}</em>
+                </td>
+                <td>
+                  <em>{{matchDet.guest.teamEntity.name_zh}}</em>
+                  <img :src="matchDet.guest.teamEntity.logo">
+                </td>
+              </thead>
+              <tr v-for="(item,index) in spliceList" :key="index">
+                <td>
+                  <span>{{item[0].shirt_number}}</span>
+                  <img :src="item[0].logo" alt  :onerror="defaultImg">
+                  <i>{{item[0].name}}</i>
+                </td>
+                <td v-if="item[1]">
+                  <i>{{item[1].name}}</i>
+                  <img :src="item[1].logo" alt  :onerror="defaultImg">
+                  <span>{{item[1].shirt_number}}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+        <div class="injured" v-if="injuryHome.length > 0 || injuryAway.length>0">
+          <span class="lineup-title">伤停球员</span>
+          <div class="injured-players">
+            <div class="injured-list">
+              <div class="injured-msg">
+                <img :src="matchDet.home.teamEntity.logo">
+                <em>{{matchDet.home.teamEntity.name_zh}}</em>
+              </div>
+              <div class="injured-item" v-for="(item,index) in injuryHome" :key="index">
+                <div class="injured-top">
+                  <div class="top-msg">
+                    <span class="in-num">{{ item[1] && item[1].shirt_number ? item[1].shirt_number:''}}</span>
+                    <img :src="item[0].logo" :onerror="defaultImg">
+                    <span>
+                      <em>{{item[0].name}}</em>
+                      <i>{{item[0].position | playerPos}}</i>
+                    </span>
+                  </div>
+                  <span class="inj-info">
+                    <em>{{item[0].type == 1 ? '受伤' : '停赛'}}</em>
+                    <i>{{item[0].reason}}</i>
+                  </span>
+                </div>
+                <div class="injured-bottom">
+                  <em>伤停时间：{{item[0].start_time | formatDate}}</em>
+                  <div>
+                    <span>归队时间：{{item[0].end_time | formatDate}}</span>
+                    <i>影响{{item[0].missed_matches}}场比赛</i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="injured-list">
+              <div class="injured-msg">
+                <img :src="matchDet.guest.teamEntity.logo">
+                <em>{{matchDet.guest.teamEntity.name_zh}}</em>
+              </div>
+              <div class="injured-item" v-for="(item,index) in injuryAway" :key="index">
+                <div class="injured-top">
+                  <div class="top-msg">
+                    <span class="in-num">{{item[1] && item[1].shirt_number ? item[1].shirt_number:''}}</span>
+                    <img :src="item[0].logo"  :onerror="defaultImg">
+                    <span>
+                      <em>{{item[0].name}}</em>
+                      <i>{{item[0].position | playerPos}}</i>
+                    </span>
+                  </div>
+                  <span class="inj-info">
+                    <em>{{item[0].type == 1 ? '受伤' : '停赛'}}</em>
+                    <i>{{item[0].reason}}</i>
+                  </span>
+                </div>
+                <div class="injured-bottom">
+                  <em>伤停时间：{{item[0].start_time | formatDate}}</em>
+                  <div>
+                    <span>归队时间：{{item[0].end_time | formatDate}}</span>
+                    <i>影响{{item[0].missed_matches}}场比赛</i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="substitution" v-if="substitutionHome.length>0 || substitutionAway.length>0">
+          <span class="lineup-title">本场换人</span>
+          <div class="substitution-players">
+              <div class="substitution-list">
+                <div class="substitution-msg">
+                  <img :src="matchDet.home.teamEntity.logo">
+                  <em>{{matchDet.home.teamEntity.name_zh}}</em>
+                </div>
+                <div class="subsitution-item" v-for="(item,index) in substitutionHome" :key="index">
+                  <span class="in-num">{{item.inplayer.shirt_number}}</span>
+                  <img class="person" :src="item.inplayer.logo" alt="  " :onerror="defaultImg">
+                  <span class="name">{{item.inplayer.name}}</span>
+                  <img src="../img/ic_match_substitution_a.png" alt=" ">
+                  <em>{{item.time}}</em>
+                  <img src="../img/ic_match_substitution_b.png" alt=" ">
+                  <span class="in-num">{{item.outplayer.shirt_number}}</span>
+                  <img  class="person" :src="item.outplayer.logo" alt="  " :onerror="defaultImg">
+                  <span class="name">{{item.outplayer.name}}</span>
+                </div>
+              </div>
+              <div class="substitution-list">
+                <div class="substitution-msg">
+                  <img :src="matchDet.guest.teamEntity.logo">
+                  <em>{{matchDet.guest.teamEntity.name_zh}}</em>
+                </div>
+                <div class="subsitution-item" v-for="(item,index) in substitutionAway" :key="index">
+                  <span class="in-num">{{item.inplayer.shirt_number}}</span>
+                  <img class="person" :src="item.inplayer.logo" alt="  " :onerror="defaultImg">
+                  <span class="name">{{item.inplayer.name}}</span>
+                  <img src="../img/ic_match_substitution_a.png" alt=" ">
+                  <em>{{item.time}}</em>
+                  <img src="../img/ic_match_substitution_b.png" alt=" ">
+                  <span class="in-num">{{item.outplayer.shirt_number}}</span>
+                  <img  class="person" :src="item.outplayer.logo" alt="  " :onerror="defaultImg">
+                  <span class="name">{{item.outplayer.name}}</span>
+                </div>
+              </div>
+          </div>
+        </div>
+        <!-- 未开赛 -->
+        <div class="matchdata-none"  v-if="spliceList.length == 0">
+          <img src="../img/img_saishi_kong.png" alt="">
+          <span>更多赛事资讯，请立即下载今球app</span>
+        </div>
+        <!--下载-->
+        <div class="tips ">
+          <div class="tips-left ">
+              <img src="../img/logo.png" alt=" ">
+              <div>
+                  <span>今球</span>
+                  <em>今天的足球篮球资讯你get了吗？</em>
+              </div>
+          </div>
+          <div class="tips-right">
+              <em @click="goDownload">立即下载</em>
+          </div>
+      </div>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js "></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js "></script>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js "></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            defaultImg: 'this.src="../img/def_nav_portrait.png"',
+            data: { matchevent: { name_zh: '' }, guest: { teamEntity:{} }, home: { teamEntity: {} }, status: {} },
+            // list: '',
+            managerDet: [], // 直播数据
+            matchTime: '',
+            injuryHome: [], // 队1伤停
+            injuryAway: [],  // 队2伤停
+            substitutionHome: [], // 队1换人
+            substitutionAway: [],  // 队2换人
+            spliceList: [], //拼接组队数据
+            dataDet: "", //阵容数据
+            liveSta: 0, // 直播状态
+            homeGItem: "", //主队守门员
+            awayGItem: "", //客队守门员
+            homeLists: [],
+            awayLists: [],
+            matchDet: {
+                matchevent: {
+                  short_name_zh: ""
+                },
+                home: {
+                  teamEntity: {
+                    name_zh: "",
+                    logo: ""
+                  }
+                },
+                guest: {
+                  teamEntity: {
+                    name_zh: "",
+                    logo: ""
+                  }
+                }
+            }
+        },
+         // 过滤器
+        filters: {
+          // 时间戳
+          formatDate(time) {
+            if (time == 0) {
+              return "待定";
+            }
+            // let date = new Date(time);
+            function timestampToTime(timestamp) {
+                var myYear = (new Date()).getFullYear();
+                var date = new Date(timestamp * 1000); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+                var Y = date.getFullYear() + '-';
+                var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+                var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+                var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+                var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+                return Y + M + D + h + m;
+            }
+            return timestampToTime(time);
+          },
+          // 位置
+          playerPos(pos) {
+            let posList = {
+              D: "后卫",
+              M: "中场",
+              F: "前锋",
+              G: "守门员"
+            };
+            return posList[pos];
+          },
+          formatWeek(time) {
+            let week = {
+              0: "星期日",
+              1: "星期一",
+              2: "星期二",
+              3: "星期三",
+              4: "星期四",
+              5: "星期五",
+              6: "星期六"
+            };
+            return week[new Date(time).getDay()];
+          }
+        },
+        methods: {
+            // 查看全部
+            goDownload() {
+                window.location.href = 'https://api.jinqiulive.com/download/app'
+            },
+            // 获取链接中的参数
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                var q = window.location.pathname.substr(1).match(reg_rewrite);
+                if (r != null) {
+                    return unescape(r[2]);
+                } else if (q != null) {
+                    return unescape(q[2]);
+                } else {
+                    return null;
+                }
+            },
+            // // 获取比赛详情(天气、教练信息之类的)
+            // getMatchDet() {
+            //     // 判断天气icon
+            //     let weather = {
+            //         1: () => (this.bgImg = "bg01"),
+            //         2: () => (this.bgImg = "bg02"),
+            //         3: () => (this.bgImg = "bg03"),
+            //         4: () => (this.bgImg = "bg04"),
+            //         5: () => (this.bgImg = "bg05"),
+            //         6: () => (this.bgImg = "bg06"),
+            //         7: () => (this.bgImg = "bg07"),
+            //         8: () => (this.bgImg = "bg08"),
+            //         9: () => (this.bgImg = "bg09"),
+            //         10: () => (this.bgImg = "bg10"),
+            //         11: () => (this.bgImg = "bg11"),
+            //         12: () => (this.bgImg = "bg12"),
+            //         13: () => (this.bgImg = "bg13")
+            //     };
+            // },
+            //获取比赛阵容
+            getLineUp(id) {
+                axios.get(`https://api.jinqiulive.com/client-app/nami-match/match/lineup?id=${id}`).then(res => {
+                    this.dataDet = res.data.data;
+                    console.log('阵容数据', this.dataDet)
+                    if (this.dataDet.home) {
+                        // 主队守门员
+                        this.dataDet.home.map(item => {
+                            if (item.firstStatus && item.position == "G") this.homeGItem = item;
+                        });
+                        console.log('主队守门员', this.homeGItem)
+                        // 客队守门员
+                        this.dataDet.away.map(item => {
+                            if (item.firstStatus && item.position == "G") this.awayGItem = item;
+                        });
+                        console.log('客队守门员', this.awayGItem)
+                        // 首发阵容数据拼接
+                        // 客队
+                        let tempH = {};
+                        this.dataDet.home.map(item => {
+                            if (item.firstStatus && item.position != "G") {
+                                if (!tempH[item.y]) {
+                                    tempH[item.y] = [];
+                                    this.homeLists.push(tempH[item.y]);
+                                }
+                                tempH[item.y].push(item);
+                            }
+
+                            if (item.incidents && item.incidents.length > 0) {
+                              item.incidents.map(temp => {
+                                let in_player = {}
+                                let out_player = {}
+                                if (temp.in_player) {
+                                  in_player = this.dataDet.playerMap[temp.in_player.id]
+                                }
+                                if (temp.out_player) {
+                                  out_player = this.dataDet.playerMap[temp.out_player.id]
+                                }
+                                if (in_player && out_player) { 
+                                  if (JSON.stringify(in_player) !== '{}'|| JSON.stringify(out_player) !=='{}') {
+                                  this.substitutionHome.push({time:temp['time'], inplayer: in_player, outplayer: out_player})
+                                }
+                                this.substitutionHome = this.unique(this.substitutionHome)
+                                }
+                              })
+                            }
+                        });
+                        console.log('主队数据拼接', this.homeLists)
+                        console.log('主队换人', this.substitutionHome)
+                        // 主队
+                        let tempA = {};
+                        this.dataDet.away.map(item => {
+                            if (item.firstStatus && item.position != "G") {
+                                if (!tempA[item.y]) {
+                                    tempA[item.y] = [];
+                                    this.awayLists.push(tempA[item.y]);
+                                }
+                                tempA[item.y].push(item);
+                            }
+
+                            if (item.incidents && item.incidents.length > 0) {
+                              item.incidents.map(temp => {
+                                let in_player = {}
+                                let out_player = {}
+                                if (temp.in_player) {
+                                  in_player = this.dataDet.playerMap[temp.in_player.id]
+                                }
+                                if (temp.out_player) {
+                                  out_player = this.dataDet.playerMap[temp.out_player.id]
+                                }
+                                if (in_player && out_player) {
+                                  if (JSON.stringify(in_player) !== '{}' || JSON.stringify(out_player) !=='{}') {
+                                  this.substitutionAway.push({time:temp['time'], inplayer: in_player, outplayer: out_player})
+                                  }
+                                } 
+                                this.substitutionAway = this.unique(this.substitutionAway)
+                                console.log('客队阵容数据拼接', this.awayLists)
+                                console.log('客队换人', this.substitutionAway)
+                              })
+                            }
+                        });
+                        // 替补数据拼接
+                        let homes = [];
+                        let aways = [];
+                        this.dataDet.home.map(res => {
+                            if (!res.firstStatus) {
+                                homes.push(res);
+                            }
+                        });
+                        this.dataDet.away.map(res => {
+                            if (!res.firstStatus) {
+                                aways.push(res);
+                            }
+                        });
+                        this.spliceList = homes.map((home, away) => [home, aways[away]]);
+                        console.log('替补数据', this.spliceList)
+                    }
+                });
+            },
+            // 过滤重复本场换人
+            unique(arr) {
+               const res = new Map();
+               return arr.filter((arr) => !res.has(arr.inplayer.id) && res.set(arr.inplayer.id, 1));
+             },
+            // 比赛分析
+            getAna(id) {
+              axios.get(`https://api.jinqiulive.com/client-app/nami-match/match/analysis?id=${id}`)
+                .then(res => {
+                  // 伤停数据拼接
+                  let hl = res.data.data.injury.home;
+                  let al = res.data.data.injury.away;
+                  let pm = res.data.data.playerMap;
+                  console.log('伤停数据', res.data)
+                  this.injuryHome = hl.map(item => [item, pm[item.id]]);
+                  this.injuryAway = al.map(item => [item, pm[item.id]]);
+                  console.log('主队伤停', this.injuryHome)
+                  console.log('客队伤停', this.injuryAway)
+                });
+            }
+        },
+        mounted() {
+            let id = this.getQueryString('id')
+            // id = 2679943;
+            axios.get(`https://api.jinqiulive.com/client-app/nami-match/match/detail?id=${id}`).then(res => {
+                this.data = res.data.data;
+                this.matchDet = res.data.data;
+                switch (this.matchDet.customStatus) {
+                  case 0 || -1 || 9 || 12 || 13:
+                    this.liveSta = 1;
+                    break;
+                  case 1:
+                    this.liveSta = 4;
+                    break;
+                  case 2 || 3 || 4 || 5 || 6 || 7:
+                    this.liveSta = 2;
+                    break;
+                  case 8 || 10 || 11:
+                    this.liveSta = 3;
+                    break;
+                }
+                console.log('===>matchDet',this.matchDet)
+                this.matchTime = this.timestampToTime(this.data.matchTime)
+            }).catch(err => {
+                console.log(err);
+            });
+            axios.get(`https://api.jinqiulive.com/client-app/nami-match/match/info?id=${id}`).then(res => {
+                // this.list = res.data.data.stats;
+                this.managerDet = res.data.data;
+            }).catch(err => {
+                console.log(err);
+            });
+            this.getLineUp(id);
+            this.getAna(id);
+        }
+    });
+</script>
+</html>

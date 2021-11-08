@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>今球</title>
+		<link rel="stylesheet" href="./css/base.css">
+		<link rel="stylesheet" href="./css/common.css">
+		<link rel="stylesheet" href="./css/video-js.min.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+		<div id="app" class="live color-scheme" v-cloak>
+			<div class="live-video">
+				<div class="live-topic">
+					<div v-show="isShowTopic">{{topic}}</div>
+				</div>
+				<!-- <i class="live-play-icon" @click="playVideo">{{isPlay ? '暂停':'播放'}}</i> -->
+				<div class="video-block">
+					<video ref="videoElement" class="video-js vjs-default-skin vjs-big-play-centered vjs-16-9"></video>
+					<img  class="live-bg" v-if="!isVideo && img !==''" :src="img" />
+					<div v-if="!isVideo && status !== 1"  class="live-permnition">
+						<img v-if="isLive" class="live-logo" :src="avatar">
+						<div v-if="isLive" class="live-txt">
+							<p v-if="status === 2">主播休息中...<br/>请稍后哦</p>
+							<p v-if="status === 0">{{permnition ? permnition: '主播还没有上线'}}</p>
+							<p v-if="status === 3">主播禁播中</p>
+						</div>
+						<p v-if="!isLive">
+							该直播间不存在！
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="live-announcement">
+				直播间公告：{{notice}}
+			</div>
+			<div ref="barrage" class="live-barrage">
+				<p v-for="(item, index) in message" v-if="item.type.value !== 2" :key="index" :class="{'live-anchor': item.userType.value === 0, 'enter-live': item.type.value === 1 || item.type.value === 2 }">
+					<!--用户-->
+					<span v-if="item.userType.value !== 2 && item.type.value !== 2 && item.userType.value !== 3" class="live-tag">{{item.userType.display}}</span>
+					<span v-if="item.type.value !== 1 && item.userType.value !== 0 && item.userType.value !== 3" class="nickname">{{item.user.nickname}}：</span>
+					<span v-if="item.type.value === 1 || item.userType.value === 0 || item.userType.value === 3">{{
+						item.user.nickname + '：'
+					}}</span>
+					<span>{{ item.content}}</span>
+				</p>
+				<!-- <p class="live-anchor">
+					<span class="live-tag">主播</span>
+					迪丽热巴小魔仙：欢迎各位老铁进来...
+				</p>
+				<p>
+					<span class="live-tag">房管</span>
+					<span class="nickname">neinei弟弟：</span>
+					大家要文明观赛，多多发言。禁止传播 有关政治，黄、赌、毒的负面新闻及消息。
+				</p>
+				<p>
+					<span class="nickname">滑铁卢拿破仑车：</span>
+					干啥呢 老铁们......速速走一波，你们人 呢，哭啊快是啊的哈达是大海的阿斯达阿是大海的
+				</p>
+				<p class="enter-live">
+					艾斯铁拳：进入直播间
+				</p>
+				<p>
+					<span class="nickname">滑铁卢拿破仑车：</span>
+					干啥呢 老铁们......速速走一波，你们人 呢，哭啊快是啊的哈达是大海的阿斯达阿是大海的
+				</p> -->
+			</div>
+			<div class="tips" v-if="tips===0">
+				<div class="tips-left ">
+						<img src="./img/logos.png " alt=" ">
+						<div>
+								<span>今球</span>
+								<em>今天的足球篮球资讯你get了吗？</em>
+						</div>
+				</div>
+				<div class="tips-right">
+						<em @click="getDownload">打开</em>
+				</div>
+			</div>
+		</div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script src="./js/socket.io.js"></script>
+<script src="./js/video.min.js"></script>
+<script src="./js/videojs-contrib-hls.min.js"></script>
+<script>
+	var app = new Vue({
+		el: '#app',
+		data: {
+			isLive: true, // 是否存在直播间
+			isPlay: false,        // 是否播放
+			message: [],
+			url: '',
+			notice: '',
+			topic: '',
+			isShowTopic: true,
+			isVideo: false,
+			img: './img/ic_zhj_default_bg.png',
+			permnition: '',
+			createTime: '',
+			avatar: null,
+			status: 0,
+			tips: 0
+		},
+		computed: {
+		},
+		watch: {
+			// 实时监听数据变化
+			message(val){
+				this.autoScroll()
+			}
+		},
+		methods: {
+    	// 格式化时间
+			timestampToTime(timestamp) {
+				var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+				var Y = date.getFullYear() + '-';
+				var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+				var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+				var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+				var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes()) + ':';
+				var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+				return Y + M + D + h + m + s;
+			},
+			// 播放视频 和暂停视频
+			playVideo() {
+				this.$refs.videoElement.play()
+				if (this.isPlay) {
+					this.$refs.videoElement.pause()
+				}
+				this.isPlay = !this.isPlay
+			},
+			// 下载
+			getDownload() {
+        window.location.href = 'https://api.jinqiulive.com/download/app'
+			},
+			// 更新数据
+			updateMess(res) {
+				this.$set(this.message, this.message.length, res)
+				console.log('==>', this.message, this.message[0])
+			},
+			// 评论自动向上滚动
+			autoScroll() {
+				const e =  this.$refs.barrage;
+				if (e.scrollHeight > e.offsetHeight) {
+          e.scrollTop = e.scrollHeight
+        }
+			},
+			// 是否显示标题
+			showTopic() {
+				this.isShowTopic = !this.isShowTopic
+				console.log(this.isShowTopic)
+			},
+			 // 获取链接中的参数
+			getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+      }
+		},
+		created(){
+			//  setInterval(() => {
+			//      debugger
+			//  },0)
+		 },
+		mounted() {
+			this.tips = this.getQueryString('tips') ? this.getQueryString('tips'): 0
+			const id = this.getQueryString('id')
+			axios.get(`https://api.jinqiulive.com/client-app/streamer-room?id=${id}&protocol=2`).then(res => {
+				if (res.data.code === 949) {
+					this.isLive = false
+				} else {
+					const data = res.data.data
+					this.notice = data.notice
+					this.topic = data.topic
+					this.url = data.pullStreamingAddress ? data.pullStreamingAddress.highPullUrl:null
+					this.isVideo =  data.streamer.status.value === 1 ? true:false
+					this.img = data.logo ? data.logo : this.img
+					this.permnition =  data.permnition
+					this.createTime = data.createTime
+					this.avatar = data.streamer ? data.streamer.avatar:null
+					this.status = data.streamer.status.value
+					let player = videojs(this.$refs.videoElement, {
+						fluid: true,
+						autoplay: true,  //自动播放
+						language: 'zh-CN', 
+						controls: true,  //控制条
+						preload: 'auto',  //自动加载
+						errorDisplay: true,  //错误展示
+						userActions: {
+							hotkeys: true  //是否支持热键
+						},
+						sources: [
+							{
+									src: this.url,
+									type: "application/x-mpegURL"
+									// type: "rtmp/flv"
+									// type: "video/flv"
+									// type: 'video/mp4'
+							}
+						],
+						techOrder: ['html5']
+					}, function onPlayerReady() {
+						videojs.log('Your player is ready!');
+					})
+					player.on('pause', () => {
+							this.isShowTopic = true
+				　})
+					player.on('play',  () => {
+							this.isShowTopic = false
+				　})
+				}
+			})
+			const socket = io('http://socket.jinqiulive.com:9999');
+			// 连接直播间
+			socket.on('connect', ()=>{
+			  let chMsg = { channel: id };
+	      // 加入直播间
+	      socket.emit("dqx.live.channel.join", chMsg, data => {
+	        console.log(data, "加入直播间");
+	      });;
+				// 获取直播状态
+				socket.on('dqx.live.room.event',(res)=> {
+					console.log('获取直播状态', res, res.type.value)
+					if (res.type.value === 1) {
+						this.status = 2 // 直播暂停
+						this.isVideo = false
+					}
+					if (res.type.value === 0) {
+						this.status = 1 // 直播中
+						this.isVideo = true
+					}
+					if (res.type.value === 2) {
+						this.status = 0 // 下播 或者为开播
+						this.isVideo = false
+					}
+					if (res.type.value === 3) {
+						this.status = 3 // 禁播
+						this.isVideo = false
+					}
+				});
+				// 接收消息
+				socket.on('dqx.live.receive',(res)=>{
+					console.log('接收消息', res)
+						this.message.push(res)
+				});
+			})
+			this.autoScroll()
+		}
+	})
+</script>
+</html>

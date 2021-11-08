@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+  <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+  <title>填写收货信息</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/common.css">
+  <link rel="stylesheet" href="./css/vant.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+    .share-status .top{
+      height: 1.6rem;
+      width: 100%;
+      background: url('./img/share-pull/daifahuo.png')no-repeat center;
+      background-size: 100%;
+    }
+    .share-status .top.on{
+      background: url('./img/share-pull/yifahuo.png')no-repeat center;
+      background-size: 100%;
+    }
+    .share-status .adress-shop{
+      border-top: .2rem solid #F5F5F5;
+      border-bottom: 1px solid #EEEEEE;
+    }
+    #app{
+      padding: 0;
+    }
+    .share-status .copy {
+      padding: .08rem .2rem;
+      margin-left: .2rem;
+      width: .88rem;
+      border-radius: .08rem;
+      font-size: .24rem;
+      background-color: #EEEEEE;
+      border: .02rem solid #ADADAD;
+      color: #171717;
+    }
+
+    .share-status .van-cell__value {
+      flex: 2;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="share-status share-adress" v-cloak>
+    <div class="top" :class="{on:isSend}">
+    </div>
+    <van-cell-group>
+      <van-cell :title=`收货人：${data.receiver}` :value="data.contact" />
+    </van-cell-group>
+    <van-cell-group :border="false">
+      <van-cell :title="data.address"/>
+    </van-cell-group>
+    <div class="adress-shop">
+			<div class="shop-icon">
+				<img src="./img/share-pull/level-1.png" alt="图片" />
+			</div>
+			<div class="shop-desc">
+				<div class="desc-top">
+					{{data.vo.title}}
+				</div>
+				<div class="desc-bottom">
+					<div class="desc-name">备注：{{data.remark || '随机'}}</div>
+				</div>
+			</div>
+    </div>
+    <van-cell-group :border="false">
+      <van-cell title="订单号：" />
+      <template #default>
+        <span>{{data.id}}<em class="copy" @click="copy(data.id)">复制</em></span>
+      </template>
+    </van-cell-group>
+    <van-cell-group :border="false">
+      <van-cell title="创建时间：" :value="data.createdAt | timestampToTime" />
+    </van-cell-group>
+    <van-cell-group :border="false">
+      <van-cell title="抵用人数：" :value=`${data.vo.price}人` />
+    </van-cell-group>
+    <van-cell-group :border="false">
+      <van-cell title="发货时间：" :value="data.sendTime || '暂无'" />
+    </van-cell-group>
+    <van-cell-group :border="false">
+      <van-cell title="快递单号："/>
+      <template #default>
+        <span>{{data.trackingNumber || '暂无'}}<em class="copy" v-if="data.trackingNumber" @click="copy(data.trackingNumber)">复制</em></span>
+      </template>
+    </van-cell-group>
+  </div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script src="./js/vant.min.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+		data: {
+      data: {
+        vo: {
+          title: '',
+          price: 0
+        }
+      },
+      id: '',
+      isSend: false
+		},
+    created() {
+    },
+    filters: {
+			// 时间
+			timestampToTime(timestamp) {
+				var myYear = (new Date()).getFullYear();
+				var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+				var Y = date.getFullYear() + '-';
+				var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+				var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+				var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+				var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes())+ ':';
+				var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+				return Y + M + D + h + m + s;
+			}
+		},
+    methods: {
+      // 获取链接中的参数
+			getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+			},
+      // 得到我的礼品订单详情
+			getUser(orderId, token) {
+				axios.get(`http://192.168.1.200:9000/client-app/delivery/gift/${orderId}`, {
+				headers: {
+					Authorization: `Bearer ${token}`,
+				},
+				}).then(res => {
+					this.data = res.data.data || {}
+          this.isSend = this.data.status.value === 201 ? true:false
+				});
+			},
+      // 复制
+			copy(data) {
+				let url = data;
+				let oInput = document.createElement("input");
+				oInput.value = url;
+				document.body.appendChild(oInput);
+				oInput.select(); // 选择对象;
+				console.log(oInput.value);
+				document.execCommand("Copy"); // 执行浏览器复制命令
+				vant.Toast('复制成功');
+				oInput.remove();
+			},
+    },
+    mounted() {
+      const token = this.getQueryString('token');
+      const orderId = this.getQueryString('orderId');
+      this.getUser(orderId, token)
+    }
+  })
+</script>
+
+</html>

@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>今球</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="custom article color-scheme" v-cloak>
+				<div class="custom-topic-wrap">
+					<div class="match-top">
+						<div v-if="num == 98">
+							<span class="time-status">{{time +' '+ statusText}}</span>
+							<h1 class="game-title">{{title}}</h1>
+							<h2 class="game-subtitle">{{subject}}</h2>
+						</div>
+						<div v-if="num == 99">
+							<div class="title">{{data.competition}}</div>
+							<div class="center">
+									<div class="item home">
+											<img :src="data.home.logo" alt="">
+											<span>{{data.home.name}}</span>
+											<i>{{data.homeRanking}}</i>
+									</div>
+									<!-- 状态判断 -->
+									<!-- 只有文字 -->
+									<div class="info txt" v-if="data.status.value == 1">
+											<span>{{data.customStatusDesc}}</span>
+											<div class="score">
+													<em>{{data.score.home}}</em>
+													-
+													<em>{{data.score.away}}</em>
+											</div>
+									</div>
+									<!-- 未开赛&比赛异常 -->
+									<div v-if="data.status.value == 0" class="info dateTime">
+											<span>{{matchTime}}</span>
+											<em>{{data.status.display}}</em>
+									</div>
+									<!-- 客队 -->
+									<div class="item away">
+											<img :src="data.away.logo" alt="">
+											<span>{{data.away.name}}</span>
+											<i>{{data.awayRanking}}</i>
+									</div>
+							</div>
+						</div>
+						<div class="see-btn">
+							<span @click="getDownload">观看比赛</span>
+						</div>
+					</div>
+				</div>
+				<div class="article-content">
+					<div class="title">
+							{{contentTxt.title}}
+					</div>
+					<div class="art-user">
+							<div class="art-user-msg">
+									<span>{{contentTxt.author}}</span>
+									<em>{{contentTxt.time}}</em>
+							</div>
+					</div>
+					<div class="art-description" v-if="contentTxt.subhead !== ''">
+							{{contentTxt.subhead}}
+					</div>
+					<div class="show-all">
+							<div class="art-content" ref="element" :style="artHeight">
+									<div class="art" v-html="contentTxt.content">
+									</div>
+							</div>
+							<div class="hiden-art" v-if="isMore">
+									<img class="show-all" @click="getAllArticle" src="./img/ic_xiala.png " alt=" ">
+									<div class="art-btn" @click="getDownload"><span>查看余下精彩内容</span></div>
+							</div>
+					</div>
+			</div>
+			<div class="block recommend" v-if="recommendData.length > 0">
+				<div class="block-title">
+						精彩推荐
+				</div>
+				<div class="recommend-item" v-for="item in recommendData" @click="getDownload">
+						<div class="item-content">
+								<div class="item-title">{{item.title}}</div>
+								<div class="item-desc">
+										<div class="desc-source">
+												<span v-if="item.source !== ''">{{item.source}}</span>
+												<em>{{item.countComment}}条评论</em>
+										</div>
+										<span class="desc-create">{{item.time}}</span>
+								</div>
+						</div>
+						<div class="item-img">
+								<img :src="item.imageUrl">
+						</div>
+				</div>
+			</div>
+			<div class="block common">
+					<div class="block-title">最新评论</div>
+					<div class="common-content" v-if="commonData !== ''">
+							<img :src="evaUserAv">
+							<div class="content-desc">
+									<span>{{nicknameReply}}</span>
+									<em>{{commonData.createdAt | timestampToTime}}</em>
+									<p>{{commonData.content}}</p>
+							</div>
+					</div>
+					<div v-if="commonData === ''" class="common-no-content">
+							<span>暂无评论，快来抢占沙发吧</span>
+					</div>
+					<div v-if="commonData !== ''" class="common-more" @click="getDownload">
+							<span>查看精彩评论</span >
+					</div>
+			</div>
+			<div class="tips">
+				<div class="tips-left ">
+						<img src="./img/logos.png " alt=" ">
+						<div>
+								<span>今球</span>
+								<em>今天的足球篮球资讯你get了吗？</em>
+						</div>
+				</div>
+				<div class="tips-right">
+						<em @click="getDownload">打开</em>
+				</div>
+			</div>
+  </div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script src="https://res.sharetrace.com/sharetrace.min.js"></script>
+<script>
+    var app = new Vue({
+				el: '#app',
+        data: {
+					num: '98',
+					contentTxt: [],            // 战报数据
+					data: { 
+              matchevent: { name_zh: '' }, 
+              guest: { teamEntity: {} }, 
+              home: { name: '',logo:'' }, 
+              away: { name: '',logo:'' }, 
+              score: {home:0,away:0},
+              stage: {},
+							status: {} },
+					matchTime: '',
+					statusValue: 0, // 比赛状态  0:未开始  1: 进行中 2 结束 3异常
+					statusText: '', // 比赛状态显示
+					title: '', // 主标题
+					subject: '', // 副标题
+					time: '', // 时间
+					recommendData: [],   // 推荐数据
+          commonData: '',      // 评论数据
+          evaUserAv: '',       // 评论人头像
+          nicknameReply: '',   // 评论人名称
+          defaultImg: 'this.src="./img/def_nav_portrait.png "',  // 默认头像
+          artHeight: '',       // 浏览器显示文章
+					isMore: false,       // 是否查看更多
+        },
+        computed: {
+        },
+        methods: {
+					// 时间
+					timestampToTime(timestamp) {
+						var myYear = (new Date()).getFullYear();
+						var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+						var Y = date.getFullYear() + '-';
+						var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+						var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+						var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+						var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+						var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+							if (myYear == date.getFullYear()) {
+								return M + D + h + m;
+							} else {
+								return Y + M + D + h + m;
+						}
+					},
+            // 查看全部内容
+            getAllArticle() {
+               let _height = window.getComputedStyle(this.$refs.element).height;
+               this.artHeight = 'height:100%;'
+               this.isMore = false
+            },
+            // 下载
+            getDownload() {
+                ShareTrace.download();
+                // window.location.href = 'https://api.jinqiulive.com/download/app'
+            },
+            // 获取链接中的参数
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                var q = window.location.pathname.substr(1).match(reg_rewrite);
+                if (r != null) {
+                    return unescape(r[2]);
+                } else if (q != null) {
+                    return unescape(q[2]);
+                } else {
+                    return null;
+                }
+						},
+						// 获得推荐
+						getRemData(id) {
+								// 推荐
+								axios.get(`http://192.168.1.200:9000/client-app/article/recommend?id=${id}`).then(res => {
+										this.recommendData = res.data.data ? res.data.data:[]
+								}).catch(err => {
+										console.log(err)
+								})
+						},
+						// 得到评论
+						getComData(id) {
+							// 评论
+							axios.get(`http://192.168.1.200:9000/client-app/comments?type=4&target=${id}`).then(res => {
+                if(res.data.data.length > 0) {
+                  this.commonData = res.data.data[0]
+                  this.commonData.createdAt = this.commonData.createdAt;
+                  this.nicknameReply = this.commonData.author.nickname
+                  this.evaUserAv = this.commonData.author.avatar
+								}
+							}).catch(err => {
+									console.log(err)
+							})
+						}
+				},
+				filters: {
+					// 时间
+					timestampToTime(timestamp) {
+						var myYear = (new Date()).getFullYear();
+						var date = new Date(timestamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+						var Y = date.getFullYear() + '-';
+						var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+						var D = (date.getDate() < 10 ? '0' + date.getDate() : date.getDate()) + ' ';
+						var h = (date.getHours() < 10 ? '0' + date.getHours() : date.getHours()) + ':';
+						var m = (date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes());
+						var s = (date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds());
+							if (myYear == date.getFullYear()) {
+								return M + D + h + m;
+							} else {
+								return Y + M + D + h + m;
+						}
+					}
+				},
+        created() {
+            ShareTrace.init('40d971496992a319');
+        },
+        mounted() {
+						let id = this.getQueryString('id');
+						this.num = id.substr(0,2);
+						// let id = 990000005
+						axios.get(`http://192.168.1.200:9000/client-app/common-matches/detail?id=${id}`).then(res => {
+							console.log(res.data)
+							const data = res.data.data
+							this.data = res.data.data
+              this.matchTime = this.timestampToTime(this.data.matchTime)
+							this.statusValue =  data.status.value // 比赛状态  0:未开始  1: 进行中 2 结束 3异常
+							this.statusText = data.status.display // 比赛状态显示
+							this.title = data.title // 主标题
+							this.subject = data.subject // 副标题
+							this.time = data.weekDay // 时间
+						}).catch(err => {
+                console.log(err)
+						})
+						
+						// 战报
+						axios.get(`http://192.168.1.200:9000/client-app/live_room/match/reports?matchId=${id}`, {
+              headers: {
+                Category: 0,
+              },
+            }).then(res => {
+								this.contentTxt = res.data.data
+								console.log(this.data)
+								this.getRemData(this.data.id)
+								this.getComData(this.data.id)
+            }).catch(err => {
+                console.log(err)
+						})
+						
+				},
+				watch: {
+            data(newVal) {
+                this.$nextTick(_ => {
+                    let _height = window.getComputedStyle(this.$refs.element).height.substring(0, window.getComputedStyle(this.$refs.element).height.length - 2);
+                    console.log(_height)
+                    if (_height > 720) {
+                        this.artHeight = 'height: 12.72rem;'
+                        this.isMore = true;
+                    }
+                })
+            }
+        }
+    })
+</script>
+</html>

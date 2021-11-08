@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+  <meta name="referrer" content="never">
+  <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+  <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+  <title>分享有奖</title>
+  <link rel="stylesheet" href="./css/base.css">
+  <link rel="stylesheet" href="./css/common.css">
+  <style>
+    [v-cloak] {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app" class="share-result">
+    <img src="./img/share-pull/res-icon.png" alt="" class="res-icon">
+    <div class="share-cont">
+      <div class="title">
+        <em class="left"></em>
+        <span>拉新活动规则</span>
+        <em class="right"></em>
+      </div>
+      <div class="for-scroll">
+        <p>1..被邀请人需下载并注册今球APP后才记做成功一次，如：被邀请人之前已参加过当前活动，或已有今球账号则不记为成功；</p>
+        <p>2.当邀请人数达到活动等级要求时可
+          领取当前等级的兑换码，联系客服进
+          行兑换，领取后将减去对应人数；</p>
+        <p>3.单个兑换码有效期为30天，从领取
+          之日起开始计算，超过有效期时，兑
+          换码失效，请尽快兑换；</p>
+        <p>4.礼品会不定期的更新，具体礼品根
+          据您领取的时间所决定；</p>
+        <p>5活动截止日期为2020年12月31日</p>
+        <p>6.实物礼品于次月15号统一发货，如
+          遇周末节假日，顺延至休息日结束后
+          的第一个工作日发货。</p>
+        <p>*本活动最终解释权给公司所有</p>
+      </div>
+      <img src="./img/share-pull/zheshiyigeanniu.png" alt="" @click="getDownload">
+    </div>
+    <span class="big-circle"></span>
+    <span class="small-circle"></span>
+  </div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script src="https://res.sharetrace.com/sharetrace.min.js"></script>
+<script>
+  var app = new Vue({
+    el: '#app',
+    created() {
+      
+      // axios.get('http://192.168.1.200:9000/client-app/action/invitation-page-view')
+      ShareTrace.init('40d971496992a319');
+    },
+    methods: {
+      // 下载
+      getDownload() {
+        axios.get('http://192.168.1.200:9000/client-app/action/app-download')
+        // axios.get('http://192.168.1.200:9000/client-app/action/app-download')
+        ShareTrace.download();
+      },
+    },
+  })
+</script>
+
+</html>

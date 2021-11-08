@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+    <meta name="referrer" content="never">
+    <meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+    <meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+    <title>关于我们</title>
+    <link rel="stylesheet" href="./css/base.css">
+    <link rel="stylesheet" href="./css/common.css">
+    <style>
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" :class="{'color-scheme':iOSFollow}">
+        <div class="about-wap" :class="{on:isDark}">
+            <div class="top-cont">
+                <img src="../img/logos.png" alt class="logo">
+                <span>Version {{version}}</span>
+            </div>
+            <p>今球是垂直化独立体育APP，通过强化交互，创造更丰富、更全面的体育内容，结合专业赛事数据支持，实现了7X24小时全时段资讯服务。未来今球APP将从内容运营向用户运营过渡，建立更健全、更完善的用户会员体系，并强化自身品牌势能，用精耕细作的方式更好地为用户服务。</p>
+            <div class="list">
+                <div class="item" @click="goDet(item.url)" v-for="(item,index) in list" :key="index">
+                    <span>{{item.name}}</span>
+                    <em>></em>
+                </div>
+                <div class="item" @click="goDetS('https://m.jinqiulive.com/Inline/incrementProt.html')">
+                    <span>今球增值服务协议</span>
+                    <em>></em>
+                </div>
+            </div>
+            <div class="bottom-tips">@ 厦门市多趣想科技有限公司 版权所有</div>
+        </div>
+    </div>
+
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js "></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js "></script>
+<script src="https://cdn.bootcss.com/qs/6.5.1/qs.min.js "></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            version: '',
+            list: [],
+            isDark:false,
+            iOSFollow:false
+        },
+        methods: {
+            goDetS(val){
+                window.location.href = val + '?colorScheme=' + this.getQueryString('colorScheme') + '&followSys='+this.getQueryString('followSys');
+            },
+            // 查看全部
+            goDet(val) {
+                window.location.href = '/pdf/web/viewer.html?file=' + val + '&colorScheme=' + this.getQueryString('colorScheme') + '&followSys='+this.getQueryString('followSys');
+            },
+            // 获取链接中的参数
+            getQueryString(name) {
+                var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+                var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+                var r = window.location.search.substr(1).match(reg);
+                var q = window.location.pathname.substr(1).match(reg_rewrite);
+                if (r != null) {
+                    return unescape(r[2]);
+                } else if (q != null) {
+                    return unescape(q[2]);
+                } else {
+                    return null;
+                }
+            }
+        },
+        mounted() {
+            this.version = this.getQueryString('version')
+            this.isDark = this.getQueryString('colorScheme') == 'dark';
+            if(this.isDark){
+                document.body.style.backgroundColor = '#111111';
+            }
+            if(this.getQueryString('followSys') == 'TRUE'){
+                this.iOSFollow = true;
+            }
+            console.log(this.isDark)
+                // 比赛数据
+            axios.get(`https://api.jinqiulive.com/client-app/settings/licences`).then(res => {
+                this.list = res.data.data
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    });
+</script>
+
+</html>

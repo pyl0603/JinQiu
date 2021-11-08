@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;" name="viewport" />
+	<meta name="referrer" content="never">
+	<meta name="keywords" content="世界杯,欧洲杯,美洲杯,亚洲杯,欧冠,欧联杯,亚冠,英超,西甲,意甲,德甲,法甲,中超,国足">
+	<meta name="description" content="谈古论今，汇聚天下球事。【事事关心】回归足球本质，开心互动聊球，关注足球身边事，刷出足球新视角；【实事求是】不夸大，不造作，只求实，用独特观点感受足球另一面。">
+	<title>分享邀请人</title>
+	<link rel="stylesheet" href="./css/base.css">
+	<link rel="stylesheet" href="./css/common.css">
+	<style>
+		[v-cloak] {
+			display: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="share-app" class="share-pull-app" v-cloak>
+		<div class="share-pull" v-if="token">
+			<div class="person-warp">
+				<div class="person-misc" @click="mineShare"><a>我的邀请</a></div>
+				<div class="person-misc" @click="codeList"><a>我的礼品</a></div>
+			</div>
+			<div class="content-warp">
+				<!--等级进度条-->
+				<div class="current-level">
+					<h2 v-if="invitees > 0">您当前已邀请人数 {{invitees}} 人</h2>
+					<h2 v-if="invitees === 0">您当前未成功邀请好友</h2>
+					<!-- <div v-if="invitees > 0" class="level-img" :class="{'level-1': curretLevel === 1, 'level-2': curretLevel === 2, 'level-3': curretLevel === 3, 'level-4': curretLevel === 4,'level-5': curretLevel === 5}"></div> -->
+					<div class="level-progress">
+						<div class="progress-inner">
+							<span :class="{'progress-0-txt': true, 'progress-txt-active': invitees > 0}">邀请0人</span>
+							<div v-for="(item, index) in gifts" class="progress-inner-item" :class="calculate(item.personTime, index)" >
+								<span :class="calculateTxt(item.personTime, index)">邀请{{item.personTime}}人</span>
+							</div>
+						</div>
+					</div>
+					<p v-if="invitees < maxnum" class="progress-text">（还需要邀请<span class="level-num">{{nextNum}}</span>个好友，即可前往兑换精美礼品）</p>
+					<p v-if="invitees > maxnum" class="progress-text">（您已邀请满{{maxnum}}个好友，请尽快前往兑换精美礼品）</p>
+				</div>
+				<!--玩法规则-->
+				<div class="rules">
+					<h2 class="rules-title">如何分享给朋友</h2>
+					<p>1、将链接分享给好友</p>
+					<p>2、打开链接前往下载APP</p>
+					<p>3、安装并完成注册</p>
+				</div>
+				<!--分享链接按钮-->
+				<div class="share-button" @click="shareLinkFun" :class="{'active_txt': active_txt}">
+					分享链接
+				</div>
+				<!--任务-->
+				<div class="task">
+					<h2 class="task-title">分享任务</h2>
+					<div class="task-content">
+						<ul class="gifts">
+							<li class="gift-item" v-for="(item, index) in gifts">
+								<div class="see-gift" @click="seeSingleGift(item, index)">
+									<div class="gift-icon">
+										<img :src="item.icon" alt="奖品图片" />
+									</div>
+									<div class="gift-warp">
+										<span class="gift-title">{{item.title}}</span>
+										<p class="gift-content">累计分享<span class="gift-num">{{item.personTime}}</span>人，{{item.display}}。</p>
+									</div>
+								</div>
+								<div  class="gift-button" :class="{'unobtained': item.isShowBtn, 'obtained': !item.isShowBtn}">
+									<!-- <span v-if="item.obtained" class="see-code">查看兑换码</span> -->
+									<span @click="getGift(item, index)">领取</span>
+								</div>
+							</li>
+							<div class="gift-detail" @click="seeGift">
+								查看礼品 >>
+							</div>
+						</ul>
+						<div class="remarks">
+							<p class="remarks-title">活动规则：</p>
+							<p>1、被邀请人需下载并注册今球APP后才记做成功一次，如：被邀请人之前已参加过当前活动，或已有今球账号则不记为成功；</p> 
+							<p>2、当邀请人数达到活动等级要求时可领取当前等级的礼品，领取后将减去对应人数；</p>
+							<p>3、礼品会不定期的更新，具体礼品根据您领取的时间所决定；</p>
+							<p>4、活动截止日期为2020年12月31日;</p>
+							<p>5、实物礼品于次月15号统一发货，如遇周末节假日，顺延至休息日结束后的第一个工作日发货。</p>
+							<p>6、虚拟礼品会在三个工作日内将以短信形式发至您填写的手机号。</p>
+							<p>7、如礼品因特殊情况下架或兑换完等无法正常为您发货，将第一时间与您联系，为您更换相应的礼品</p>
+							<p>*本活动最终解释权给公司所有。</p>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!--兑换奖品弹窗-->
+			<div v-if="showTop && contentTop" class="share-pop-ups">
+				<div class="pop-title">{{contentTop.title}}兑换奖品</div>
+				<i @click="cancelTop" class="pop-icon"></i>
+				<div class="pop-content">
+					<span v-if="!expiredTop && !usedTop" class="pop-tips">※ 兑换码有效期剩余：30天，请尽快联系客服进行兑换。</span>
+					<span v-if="expiredTop" class="pop-tips expired-top">兑换码已过期</span>
+					<span v-if="usedTop" class="pop-tips used-top">兑换码已使用</span>
+					<ul class="pop-list">
+						<li class="pop-item">
+							<div class="pop-item-left">
+								<span class="pop-item-title">{{contentTop.title}}奖礼品兑换码</span>
+								<span class="pop-item-context">{{contentTop.code}}</span>
+							</div>
+							<span class="pop-item-btn" :class="{'pop-item-btn-invalid': expiredTop || usedTop}" @click="copy(contentTop.code, !expiredTop && !usedTop ? false: true)">{{!expiredTop && !usedTop ? '复制' :expiredTop ? '失效':'已兑'}}</span>
+						</li>
+						<li class="pop-item">
+							<div class="pop-item-left">
+								<span class="pop-item-title">客服小姐姐微信</span>
+								<span class="pop-item-context">popularstar24</span>
+							</div>
+							<span class="pop-item-btn" @click="copy('popularstar24', false)">复制</span>
+						</li>
+					</ul>
+				</div>
+				<div class="pop-footer">
+					*活动最终解释权归本公司所有
+				</div>
+			</div>
+			<!--message提示-->
+			 <div class="tip-modal"  v-if="isModal">
+				    {{message}}
+			</div>
+		</div>
+	</div>
+</body>
+<script src="./js/vue.js "></script>
+<script src="./js/axios.js"></script>
+<script src="./js/qs.js"></script>
+<script>
+	document.documentElement.addEventListener('touchstart', function (event) {
+  if (event.touches.length > 1) {
+    event.preventDefault();
+  }
+	}, false);
+	document.documentElement.addEventListener('touchstart', function (event) {
+  if (event.touches.length > 1) {
+    event.preventDefault();
+  }
+	}, false);
+</script>
+<script>
+	var app = new Vue({
+		el: '#share-app',
+		data: {
+			active_txt: false,
+			// 渲染gifts
+			gifts: [],
+			// 邀请的人数
+			invitees: 0,
+			nextNum: 0,
+			curretLevel: 0,
+			showTop: false, // 显示弹窗
+			contentTop: null, // 弹窗详情
+			isModal: false,
+			message: '复制成功',
+			expiredTop: false,
+			usedTop: false,
+			// 兑换码列表
+			codesList: [],
+			maxnum: 0,
+			token: null,
+      test: 1
+		},
+		methods: {
+			// 获取链接中的参数
+			getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var reg_rewrite = new RegExp("(^|/)" + name + "/([^/]*)(/|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        var q = window.location.pathname.substr(1).match(reg_rewrite);
+        if (r != null) {
+          return unescape(r[2]);
+        } else if (q != null) {
+          return unescape(q[2]);
+        } else {
+          return null;
+        }
+			},
+			// 分享链接
+			shareLinkFun() {
+				this.active_txt = true
+				let app = navigator.userAgent;
+				let mobile = !!app.match(/AppleWebKit.*Mobile.*/); //是否为移动终端
+				let ios = !!app.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // ios终端
+				let android = app.indexOf('Android') > -1 || app.indexOf('Linux') > -1; // android终端
+				console.log(mobile, ios, android)
+				if (mobile && ios) {
+					// postMessage 必须携带参数
+ 					window.webkit.messageHandlers.shareInvitation.postMessage({userName:'admin'});
+				}
+
+				if (android) {
+					window.android.shareInvitation('https://m.jinqiulive.com/share-result.html');
+				}
+			},
+			// 查看奖品
+			seeSingleGift(item, index) {
+				const token = this.token
+				const id = item.id
+				const num = item.personTime
+				window.location.href = `/share-gift.html?groupId=${id}&token=${token}`
+			},
+			// 领取奖品
+			getGift(item, index) {
+				if (!item.isShowBtn) {
+					return
+				}
+				// item.unobtained = false
+				// item.obtained = true
+				const token = this.token
+				const id = item.id
+				const num = item.personTime
+				window.location.href = `/share-gift.html?groupId=${id}&receive=true&token=${token}`
+				// this.invitees - num
+				// this.getCodes(token, id)
+				// this.getUser(token)
+				// this.seeCode()
+			},
+			// 根据人数判断
+			rulesPlay(num) {
+				this.maxnum = Math.max.apply(Math, this.gifts.map(o=> o.personTime))
+				for (let i=0; i< this.gifts.length; i++) {
+					if (num >= this.gifts[i].personTime) {
+						this.gifts[i].isShowBtn = true
+					}
+
+					if (num < this.gifts[i].personTime) {
+						this.nextNum = this.gifts[i].personTime - num
+						break;
+					}
+				}
+				console.log(this.gifts)
+			},
+			// 我的分享跳转
+			mineShare() {
+				const token = this.token;
+				window.location.href = `/share-record.html?token=${token}`
+			},
+			// 查看弹窗
+			seeCode() {
+				this.showTop = true
+			},
+			// 取消弹窗
+			cancelTop() {
+				this.showTop = false
+				this.contentTop = null
+			},
+			// 复制
+			copy(data, boolean) {
+				if (boolean) {
+					return;
+				}
+				let url = data;
+				let oInput = document.createElement("input");
+				oInput.value = url;
+				document.body.appendChild(oInput);
+				oInput.select(); // 选择对象;
+				console.log(oInput.value);
+				document.execCommand("Copy"); // 执行浏览器复制命令
+				this.isModal = true;
+				setTimeout(() => {
+          this.isModal = false
+        }, 1500)
+				oInput.remove();
+			},
+			// 查看礼品详情
+			seeGift() {
+				window.location.href = '/share-gift.html'
+			},
+			// 拼装进度条class名称
+			calculate(value, index) {
+				if (this.invitees >= value) {
+					return `progress-active progress-${index+1}`
+				}
+				return `progress-${index+1}`
+			},
+			calculateTxt(value, index) {
+				if (this.invitees >= value) {
+					return `progress-txt-active progress-${index+1}-txt`
+				}
+				return `progress-${index+1}-txt`
+			},
+			// 得到用户邀请成功统计
+			getUser(token) {
+				axios.get('https://api.jinqiulive.com/client-app/users/invitation-count', {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				}).then(res => {
+					const code = res.data.code
+					const data = res.data.data
+					if (code === 0) {
+						this.invitees = data
+						this.rulesPlay(this.invitees)
+					}	
+				}).catch(res => {
+				this.test = res}) ;
+			},
+			// 获得我的兑换码
+			getCodes(token, id) {
+				axios.post(`https://api.jinqiulive.com/client-app/redeem-codes/create?id=${id}`, '', {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+					}).then(res => {
+						const code = res.data.code
+						const data = res.data.data
+						if (code === 0) {
+							this.contentTop = data
+						}	
+					});
+			},
+			// 我的兑换码跳转
+			codeList() {
+				const token = this.token;
+				window.location.href = `/share-codelist.html?token=${token}`
+			},
+			// 获取用户token信息
+			getTokens() {
+				let app = navigator.userAgent;
+				let mobile = !!app.match(/AppleWebKit.*Mobile.*/); //是否为移动终端
+				let ios = !!app.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); // ios终端
+				let android = app.indexOf('Android') > -1 || app.indexOf('Linux') > -1; // android终端
+        if (ios) {
+            window.webkit.messageHandlers.getUserToken.postMessage({ methodsName: 'token' });
+        }
+        if (android) {
+            window.android.getUserToken('getUserToken');
+        }
+			},
+			// 邀请活动列表
+			getGiftList() {
+				axios.get('https://api.jinqiulive.com/client-app/gift/activities/list').then(res => {
+				const code = res.data.code
+				let data = res.data.data
+				if (code === 0) {
+					data.forEach((item, index) => {
+						return Object.assign(item, {'icon':`./img/share-pull/level-${index + 1}.png`, 'isShowBtn': false, 'obtained': false})
+					})
+					this.gifts = data
+					this.getUser(this.token)
+				}
+			})
+			}
+		},
+		mounted() {
+			this.getTokens();
+			window['getUserToken'] = (e) => {
+        this.token = e
+				axios.get('https://api.jinqiulive.com/client-app/action/invitation-page-view')
+				this.getGiftList()
+			};
+			// this.token = "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOiJmZjgwODE4MTZmMTI4NGVkMDE2ZjY0ZmYwM2ViMDAwNSIsImF1ZCI6WyJKSU5fUUlVIl0sImZlYXR1cmUiOnsiYmluZE1vYmlsZSI6ZmFsc2V9LCJ1c2VyX25hbWUiOiJmZjgwODE4MTZmMTI4NGVkMDE2ZjY0ZmYwM2ViMDAwNSIsInNjb3BlIjpbIioiXSwiZXhwIjoxNTk5MTg5MTEzLCJhdXRob3JpdGllcyI6WyJBUFBMSUNBVElPTl9CQVNLRVRCQUxMIiwiQVBQTElDQVRJT05fRk9PVEJBTEwiLCJCSUxMQUJMRSIsIkNIRUNLX01FRElBIiwiQ0hFQ0tfVVNFUiIsIkNPTU1PTl9NQU5BR0VSIiwiQ09NTU9OX1NFVFRJTkciLCJEQVRBX0FOQUxZU0lTIiwiRFFYX09SQ1BfVVNFUiIsIkRRWF9VU0VSX0lTX0lOVEVSTkFMIiwiRURJVE9SIiwiRURJVE9SX0lOVEVSTkFMX0FSVElDTEUiLCJFRElUT1JfSU5URVJOQUxfVklERU8iLCJFRElUT1JfWk1UX0FSVElDTEUiLCJFRElUT1JfWk1UX1ZJREVPIiwiRVhQRVJUIiwiTU9CSUxFIiwiU1RSRUFNRVIiXSwianRpIjoiYzU4MjlmYTgtN2UxYy00NjUxLWIzZGEtNGZlMDQxZDE3ZmQ4IiwiY2xpZW50X2lkIjoiZHF4LWFwcCJ9.CAAFkEARCqOWlvzUQvw_dItnKGy0alDhgUMRqSh01w-_9QoU6eBbn0MDjxyI_8U2JtSQdJTyWGE5ZRveTBwTvnonsPmFr993anH7Gw3p_NFdzTy6qXv75w404zZXlIpywrFCRwRhG_TyHBVr37pZjqLXViMj8zhcX4dPENuZw4Apo9XnveJTjukEpigponggMME7Bz8ghEbTWpRVHfirD2wWKqX7ZMTMYh3O5cRqkgLIA9IxatdtL7eawLdDiJ9RaNJEv3huYVYiIdSIz6Qwa2SGUk0duaZQ58aJuNKT2O0RycqOQOyFAzvBCdITtQpT03q3pwGN0iAPepklNMACsQ"
+			// this.getGiftList()
+		},
+	})
+</script>
+
+</html>
